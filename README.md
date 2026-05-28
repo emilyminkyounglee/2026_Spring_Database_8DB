@@ -5,8 +5,8 @@
 git clone <repo url>
 
 ### Development Environment
-Java: Java21
-IDE: IntelliJ IDEA
-Build Tool: Maven
-DBMS: Oracle Oracle MySQL HeatWave
-JDBC Driver: MySQL Connector/J 8.x
+Java: Java21 \n
+IDE: IntelliJ IDEA \n
+Build Tool: Maven \n
+DBMS: Oracle Oracle MySQL HeatWave \n
+JDBC Driver: MySQL Connector/J 8.x \n
