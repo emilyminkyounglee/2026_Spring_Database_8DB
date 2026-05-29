@@ -24,13 +24,6 @@ CREATE TABLE `customer` (
   `join_date` DATE
 );
 
-CREATE TABLE `store` (
-  `store_id` INT PRIMARY KEY,
-  `store_name` VARCHAR(100) NOT NULL,
-  `city` VARCHAR(50),
-  `manager_name` VARCHAR(100)
-);
-
 CREATE TABLE `market_basket` (
   `basket_id` INT PRIMARY KEY,
   `customer_id` INT NOT NULL,
@@ -43,7 +36,6 @@ CREATE TABLE `market_basket` (
 CREATE TABLE `sales` (
   `sales_id` INT PRIMARY KEY,
   `customer_id` INT NOT NULL,
-  `store_id` INT NOT NULL,
   `sales_timestamp` TIMESTAMP NOT NULL,
   `total_amount` DECIMAL(10,2),
   `profile_id` INT NOT NULL,
@@ -99,8 +91,6 @@ ALTER TABLE `market_basket` ADD FOREIGN KEY (`customer_id`) REFERENCES `customer
 ALTER TABLE `market_basket` ADD FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`);
 
 ALTER TABLE `sales` ADD FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`);
-
-ALTER TABLE `sales` ADD FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`);
 
 ALTER TABLE `sales` ADD FOREIGN KEY (`profile_id`) REFERENCES `customer_profile_history` (`profile_id`);
 
