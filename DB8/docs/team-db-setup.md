@@ -19,20 +19,28 @@
 
 ## 1. SSH 키 저장 (1회)
 
-받은 `db8_dev_key` 파일을 `~/.ssh/` 폴더로 옮기고 권한 설정:
+카톡으로 받은 파일은 `db8_dev_key.txt`예요. 이름 바꾸고 `~/.ssh/`로 옮기고 권한 설정합니다.
 
 ### macOS / Linux
 
 ```bash
-# 다운로드 폴더에 키가 있다고 가정
-mv ~/Downloads/db8_dev_key ~/.ssh/
+# 카톡에서 받은 파일이 ~/Downloads/db8_dev_key.txt 에 있다고 가정
+mkdir -p ~/.ssh
+mv ~/Downloads/db8_dev_key.txt ~/.ssh/db8_dev_key
 chmod 600 ~/.ssh/db8_dev_key
 ```
+
+확인:
+```bash
+ls -la ~/.ssh/db8_dev_key
+```
+`-rw-------` 로 시작하면 OK.
 
 ### Windows (Git Bash 기준)
 
 ```bash
-mv ~/Downloads/db8_dev_key ~/.ssh/
+mkdir -p ~/.ssh
+mv ~/Downloads/db8_dev_key.txt ~/.ssh/db8_dev_key
 chmod 600 ~/.ssh/db8_dev_key
 ```
 
