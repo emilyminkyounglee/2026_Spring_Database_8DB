@@ -1,3 +1,10 @@
-db.url=jdbc:mysql://HOST:3306/DBNAME
-db.user=YOUR_USER
-db.password=YOUR_PASSWORD
+# Copy this file to db.properties and fill in your password.
+# db.properties is gitignored — never commit your real password.
+#
+# Prerequisite: SSH tunnel must be running on local port 3307.
+#   ssh -fN -L 3307:10.0.0.18:3306 ubuntu@134.185.99.179
+# (See docs/team-db-setup.md)
+
+db.url=jdbc:mysql://localhost:3307/db8_bookstore?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
+db.user=dbadmin
+db.password=YOUR_PASSWORD_HERE
