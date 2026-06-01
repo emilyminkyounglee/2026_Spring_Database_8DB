@@ -1,23 +1,9 @@
-import service.SalesService;
-
 public class Main {
-    public static void main(String[] args) {
-        SalesService salesService = new SalesService();
+    //TODO: Start program and connect menus/services
 
-        int customerId = 9001;
-
-        try {
-            System.out.println("=== Purchase Basket Test Start ===");
-
-            int salesId = salesService.purchaseBasket(customerId);
-
-            System.out.println("Purchase completed successfully.");
-            System.out.println("Created salesId = " + salesId);
-
-            System.out.println("=== Purchase Basket Test End ===");
-        } catch (Exception e) {
-            System.out.println("Test failed.");
-            e.printStackTrace();
+    public static void main(String[] args) throws Exception {
+        try (java.sql.Connection conn = util.DBConnection.get()) {
+            System.out.println("Connected: " + conn.getCatalog());
         }
     }
 }
