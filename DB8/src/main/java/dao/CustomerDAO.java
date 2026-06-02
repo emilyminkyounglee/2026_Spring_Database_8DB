@@ -10,10 +10,21 @@ public class CustomerDAO {
                                  String email,
                                  String phone,
                                  Date birthDate) throws SQLException {
+        registerCustomer(conn, customerId, firstName, lastName, email, "password", phone, birthDate);
+    }
+
+    public void registerCustomer(Connection conn,
+                                 int customerId,
+                                 String firstName,
+                                 String lastName,
+                                 String email,
+                                 String password,
+                                 String phone,
+                                 Date birthDate) throws SQLException {
         String sql = """
                 INSERT INTO customer
-                (customer_id, first_name, last_name, email, phone, birth_date, join_date)
-                VALUES (?, ?, ?, ?, ?, ?, CURDATE())
+                (customer_id, first_name, last_name, email, password, phone, birth_date, join_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, CURDATE())
                 """;
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -21,10 +32,53 @@ public class CustomerDAO {
             pstmt.setString(2, firstName);
             pstmt.setString(3, lastName);
             pstmt.setString(4, email);
-            pstmt.setString(5, phone);
-            pstmt.setDate(6, birthDate);
+            pstmt.setString(5, password);
+            pstmt.setString(6, phone);
+            pstmt.setDate(7, birthDate);
 
             pstmt.executeUpdate();
+        }
+    }
+
+    public Integer findCustomerIdByEmailAndPassword(Connection conn,
+                                                    String email,
+                                                    String password) throws SQLException {
+        String sql = """
+                SELECT customer_id
+                FROM customer
+                WHERE email = ?
+                AND password = ?
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, email);
+            pstmt.setString(2, password);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("customer_id");
+                }
+                return null;
+            }
+        }
+    }
+
+    public Integer findCustomerIdByEmail(Connection conn, String email) throws SQLException {
+        String sql = """
+                SELECT customer_id
+                FROM customer
+                WHERE email = ?
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, email);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("customer_id");
+                }
+                return null;
+            }
         }
     }
 
@@ -148,14 +202,12 @@ public class CustomerDAO {
         String sql = """
                 SELECT s.sales_id,
                        s.sales_timestamp,
-                       p.product_name,
-                       sd.quantity,
-                       sd.unit_price_at_sale,
-                       sd.subtotal,
+                       s.product_name,
+                       s.quantity,
+                       s.unit_price_at_sale,
+                       s.subtotal,
                        s.total_amount
-                FROM sales s
-                JOIN sales_detail sd ON s.sales_id = sd.sales_id
-                JOIN product p ON sd.product_id = p.product_id
+                FROM v_customer_purchase_history s
                 WHERE s.customer_id = ?
                 ORDER BY s.sales_timestamp DESC
                 """;

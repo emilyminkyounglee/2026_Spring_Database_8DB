@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,41 +36,43 @@ public class SalesDAO {
     }
 
     public int insertSale(Connection conn, int customerId, BigDecimal totalAmount) throws SQLException {
-        int salesId = nextSalesId(conn);
         int profileId = findCurrentProfileId(conn, customerId);
         int ageAtSale = findAgeAtSale(conn, customerId);
 
         String sql = """
                 INSERT INTO sales
-                    (sales_id, customer_id, sales_timestamp, total_amount, profile_id, age_at_sale)
-                VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?, ?)
+                    (customer_id, sales_timestamp, total_amount, profile_id, age_at_sale)
+                VALUES (?, CURRENT_TIMESTAMP, ?, ?, ?)
                 """;
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, salesId);
-            pstmt.setInt(2, customerId);
-            pstmt.setBigDecimal(3, totalAmount);
-            pstmt.setInt(4, profileId);
-            pstmt.setInt(5, ageAtSale);
+        try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setInt(1, customerId);
+            pstmt.setBigDecimal(2, totalAmount);
+            pstmt.setInt(3, profileId);
+            pstmt.setInt(4, ageAtSale);
             pstmt.executeUpdate();
+
+            try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
         }
-        return salesId;
+        throw new SQLException("Failed to create sale.");
     }
 
     public void insertSalesDetails(Connection conn, int salesId, List<PurchaseItem> items) throws SQLException {
         String sql = """
                 INSERT INTO sales_detail
-                    (sales_detail_id, sales_id, product_id, quantity, unit_price_at_sale, subtotal)
-                VALUES (?, ?, ?, ?, ?, ?)
+                    (sales_id, product_id, quantity, unit_price_at_sale, subtotal)
+                VALUES (?, ?, ?, ?, ?)
                 """;
-        int nextId = nextSalesDetailId(conn);
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             for (PurchaseItem item : items) {
-                pstmt.setInt(1, nextId++);
-                pstmt.setInt(2, salesId);
-                pstmt.setInt(3, item.productId());
-                pstmt.setInt(4, item.quantity());
-                pstmt.setBigDecimal(5, item.unitPriceAtSale());
-                pstmt.setBigDecimal(6, item.subtotal());
+                pstmt.setInt(1, salesId);
+                pstmt.setInt(2, item.productId());
+                pstmt.setInt(3, item.quantity());
+                pstmt.setBigDecimal(4, item.unitPriceAtSale());
+                pstmt.setBigDecimal(5, item.subtotal());
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
@@ -79,19 +82,17 @@ public class SalesDAO {
     public void upsertTotalSales(Connection conn, List<PurchaseItem> items) throws SQLException {
         String sql = """
                 INSERT INTO total_sales
-                    (total_sales_id, product_id, total_quantity, total_revenue)
-                VALUES (?, ?, ?, ?)
+                    (product_id, total_quantity, total_revenue)
+                VALUES (?, ?, ?)
                 ON DUPLICATE KEY UPDATE
                     total_quantity = total_quantity + VALUES(total_quantity),
                     total_revenue = total_revenue + VALUES(total_revenue)
                 """;
-        int nextId = nextTotalSalesId(conn);
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             for (PurchaseItem item : items) {
-                pstmt.setInt(1, nextId++);
-                pstmt.setInt(2, item.productId());
-                pstmt.setInt(3, item.quantity());
-                pstmt.setBigDecimal(4, item.subtotal());
+                pstmt.setInt(1, item.productId());
+                pstmt.setInt(2, item.quantity());
+                pstmt.setBigDecimal(3, item.subtotal());
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
@@ -176,26 +177,6 @@ public class SalesDAO {
             }
         }
         throw new SQLException("Customer does not exist: " + customerId);
-    }
-
-    private int nextSalesId(Connection conn) throws SQLException {
-        return nextId(conn, "SELECT COALESCE(MAX(sales_id), 0) + 1 AS next_id FROM sales");
-    }
-
-    private int nextSalesDetailId(Connection conn) throws SQLException {
-        return nextId(conn, "SELECT COALESCE(MAX(sales_detail_id), 0) + 1 AS next_id FROM sales_detail");
-    }
-
-    private int nextTotalSalesId(Connection conn) throws SQLException {
-        return nextId(conn, "SELECT COALESCE(MAX(total_sales_id), 0) + 1 AS next_id FROM total_sales");
-    }
-
-    private int nextId(Connection conn, String sql) throws SQLException {
-        try (PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            rs.next();
-            return rs.getInt("next_id");
-        }
     }
 
     public record PurchaseItem(int productId, int quantity, BigDecimal unitPriceAtSale, int stockQuantity) {

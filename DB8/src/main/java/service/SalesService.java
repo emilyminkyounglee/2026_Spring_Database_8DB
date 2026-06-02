@@ -14,19 +14,19 @@ public class SalesService {
     private final SalesDAO salesDAO = new SalesDAO();
 
     public void addBookToBasket(int customerId, int productId, int quantity) throws SQLException {
-        try (Connection conn = DBConnection.get()) {
+        try (Connection conn = DBConnection.getConnection()) {
             basketDAO.addBook(conn, customerId, productId, quantity);
         }
     }
 
     public boolean removeBookFromBasket(int customerId, int productId) throws SQLException {
-        try (Connection conn = DBConnection.get()) {
+        try (Connection conn = DBConnection.getConnection()) {
             return basketDAO.removeBook(conn, customerId, productId);
         }
     }
 
     public int purchaseBasket(int customerId) throws SQLException {
-        try (Connection conn = DBConnection.get()) {
+        try (Connection conn = DBConnection.getConnection()) {
             boolean originalAutoCommit = conn.getAutoCommit();
             conn.setAutoCommit(false);
             try {

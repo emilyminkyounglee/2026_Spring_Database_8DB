@@ -18,6 +18,7 @@ public class CustomerService {
                                  String firstName,
                                  String lastName,
                                  String email,
+                                 String password,
                                  String phone,
                                  Date birthDate) {
 
@@ -29,6 +30,7 @@ public class CustomerService {
                     firstName,
                     lastName,
                     email,
+                    password,
                     phone,
                     birthDate
             );
@@ -37,6 +39,24 @@ public class CustomerService {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public Integer login(String email, String password) {
+        try (Connection conn = DBConnection.getConnection()) {
+            return customerDAO.findCustomerIdByEmailAndPassword(conn, email, password);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Integer findCustomerIdByEmail(String email) {
+        try (Connection conn = DBConnection.getConnection()) {
+            return customerDAO.findCustomerIdByEmail(conn, email);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

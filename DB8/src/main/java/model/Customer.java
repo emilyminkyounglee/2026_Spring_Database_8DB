@@ -8,6 +8,7 @@ public class Customer {
     private String firstName;
     private String lastName;
     private String email;
+    private String password;
     private String phone;
     private LocalDate birthDate;
     private LocalDate joinDate;
@@ -15,11 +16,12 @@ public class Customer {
     public Customer() {}
 
     public Customer(int customerId, String firstName, String lastName,
-                    String email, String phone, LocalDate birthDate, LocalDate joinDate) {
+                    String email, String password, String phone, LocalDate birthDate, LocalDate joinDate) {
         this.customerId = customerId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.password = password;
         this.phone = phone;
         this.birthDate = birthDate;
         this.joinDate = joinDate;
@@ -39,6 +41,10 @@ public class Customer {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public String getPhone() {
@@ -69,6 +75,10 @@ public class Customer {
         this.email = email;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
@@ -81,4 +91,3 @@ public class Customer {
         this.customerId = customerId;
     }
 }
-

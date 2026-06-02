@@ -18,4 +18,12 @@ public class CustomerMenu {
     //TODO: Handle invaild menu input
 
     //TODO: Return to main menu
+
+    public void run(int customerId){
+        System.out.println("CustomerMenu is not implemented yet. customer_id = " + customerId);
+    }
+
+    public void run(){
+        run(-1);
+    }
 }

@@ -9,6 +9,9 @@ public class ReviewDAO {
                             int productId,
                             int rating,
                             String reviewText) throws SQLException {
+        if (rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5.");
+        }
 
         String sql = """
                 INSERT INTO book_review

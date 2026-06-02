@@ -40,15 +40,14 @@ public class BasketDAO {
 
         String sql = """
                 INSERT INTO market_basket
-                    (basket_id, customer_id, product_id, quantity, added_at, unit_price_at_added)
-                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?)
+                    (customer_id, product_id, quantity, added_at, unit_price_at_added)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?)
                 """;
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, nextMarketBasketId(conn));
-            pstmt.setInt(2, customerId);
-            pstmt.setInt(3, productId);
-            pstmt.setInt(4, quantity);
-            pstmt.setBigDecimal(5, currentPrice);
+            pstmt.setInt(1, customerId);
+            pstmt.setInt(2, productId);
+            pstmt.setInt(3, quantity);
+            pstmt.setBigDecimal(4, currentPrice);
             pstmt.executeUpdate();
         }
     }
@@ -123,12 +122,4 @@ public class BasketDAO {
         }
     }
 
-    private int nextMarketBasketId(Connection conn) throws SQLException {
-        String sql = "SELECT COALESCE(MAX(basket_id), 0) + 1 AS next_id FROM market_basket";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            rs.next();
-            return rs.getInt("next_id");
-        }
-    }
 }

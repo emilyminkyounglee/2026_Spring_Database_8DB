@@ -53,7 +53,7 @@ public class DBConnection {
      * Open a new MySQL connection.
      * Caller (Service layer) is responsible for commit / rollback / close.
      */
-    public static Connection get() throws SQLException {
+    public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(url, user, password);
     }
 
