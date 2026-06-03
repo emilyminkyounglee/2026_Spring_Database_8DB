@@ -9,7 +9,15 @@ import java.util.List;
 public class ProductDAO {
 
     public List<Product> searchBooks(Connection conn, String keyword, String category) throws SQLException {
-        String sql = """
+        String sql;
+        if (category == null || category.isBlank()){
+            sql = """
+                SELECT product_id, category_id, product_name, author, publisher, unit_price, stock_quantity
+                FROM v_product_catalog
+                WHERE product_name LIKE ? OR author LIKE ?
+                """;
+        } else {
+            sql = """
                 SELECT product_id,
                        category_id,
                        product_name,
@@ -21,10 +29,18 @@ public class ProductDAO {
                 WHERE product_name LIKE ?
                 OR category_name LIKE ?
                 """;
+        }
+
         List<Product> result = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, "%" + keyword + "%");
-            ps.setString(2, "%" + category + "%");
+            if (category == null || category.isBlank()) {
+                ps.setString(1, "%" + keyword + "%");
+                ps.setString(2, "%" + keyword + "%");
+            } else {
+                ps.setString(1, "%" + keyword + "%");
+                ps.setString(2, "%" + category + "%");
+            }
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Product p = new Product();

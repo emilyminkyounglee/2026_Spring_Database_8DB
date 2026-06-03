@@ -25,6 +25,11 @@ public class InputUtil {
         }
     }
 
+    public static String readStringOrEmpty(String prompt) {
+        System.out.print(prompt);
+        return scanner.nextLine().trim();
+    }
+
     public static int readInt(String prompt) {
         while (true) {
             System.out.print(prompt);
