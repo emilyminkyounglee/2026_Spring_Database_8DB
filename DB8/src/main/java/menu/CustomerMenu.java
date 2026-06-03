@@ -19,8 +19,11 @@ public class CustomerMenu {
     private final ReviewDAO reviewDAO = new ReviewDAO();
     private final AnalysisService analysisService = new AnalysisService();
 
+    private int currentCustomerId;
+
     //TODO: Print customer menu
     public void run(int customerId) {
+        this.currentCustomerId = customerId;
         while (true) {
             MenuPrinter.printCustomerMenu();
             //TODO: Get user menu input
@@ -33,15 +36,15 @@ public class CustomerMenu {
                     return;
                 }
                 case 1 -> registerCustomer();
-                case 2 -> addToBasket(customerId);
-                case 3 -> removeFromBasket(customerId);
-                case 4 -> purchase(customerId);
-                case 5 -> viewPurchaseHistory(customerId);
-                case 6 -> viewProfileChangeAnalysis(customerId);
+                case 2 -> addToBasket();
+                case 3 -> removeFromBasket();
+                case 4 -> purchase();
+                case 5 -> viewPurchaseHistory();
+                case 6 -> viewProfileChangeAnalysis();
                 case 7 -> viewPopularCategories();
-                case 8 -> updateProfile(customerId);
-                case 9 -> writeReview(customerId);
-                case 10 -> deleteReview(customerId);
+                case 8 -> updateProfile();
+                case 9 -> writeReview();
+                case 10 -> deleteReview();
                 //TODO: Handle invaild menu input
                 default -> System.out.println("Invalid option. Please try again.");
             }
@@ -71,7 +74,7 @@ public class CustomerMenu {
         }
     }
 
-    private void updateProfile(int customerId) {
+    private void updateProfile() {
         try (Connection conn = DBConnection.getConnection()) {
             String firstName = InputUtil.readString("First name: ");
             String lastName = InputUtil.readString("Last name: ");
@@ -80,27 +83,27 @@ public class CustomerMenu {
             String birthStr = InputUtil.readString("Birth date (YYYY-MM-DD): ");
             Date birthDate = Date.valueOf(birthStr);
 
-            customerDAO.updateCustomerProfile(conn, customerId, firstName, lastName, email, phone, birthDate);
+            customerDAO.updateCustomerProfile(conn, currentCustomerId, firstName, lastName, email, phone, birthDate);
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
 
     //TODO: Call BasketDAO for basket-related functions
-    private void addToBasket(int customerId) {
+    private void addToBasket() {
         try (Connection conn = DBConnection.getConnection()) {
             int productId = InputUtil.readInt("Product ID: ");
             int quantity = InputUtil.readInt("Quantity: ");
-            basketDAO.addBook(conn, customerId, productId, quantity);
+            basketDAO.addBook(conn, currentCustomerId, productId, quantity);
             System.out.println("Book added to basket.");
         } catch (IllegalArgumentException | SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
 
-    private void removeFromBasket(int customerId) {
+    private void removeFromBasket() {
         try (Connection conn = DBConnection.getConnection()) {
-            List<Basket> basket = basketDAO.findByCustomer(conn, customerId);
+            List<Basket> basket = basketDAO.findByCustomer(conn, currentCustomerId);
             if (basket.isEmpty()) {
                 System.out.println("Your basket is empty.");
                 return;
@@ -110,16 +113,16 @@ public class CustomerMenu {
                     b.getProductId(), b.getQuantity(), b.getUnitPriceAtAdded(), b.getAddedAt()));
 
             int productId = InputUtil.readInt("Product ID to remove: ");
-            boolean removed = basketDAO.removeBook(conn, customerId, productId);
+            boolean removed = basketDAO.removeBook(conn, currentCustomerId, productId);
             System.out.println(removed ? "Item removed from basket." : "Item not found.");
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
 
-    private void purchase(int customerId) {
+    private void purchase() {
         try (Connection conn = DBConnection.getConnection()) {
-            List<SalesDAO.PurchaseItem> items = salesDAO.findPurchaseItems(conn, customerId);
+            List<SalesDAO.PurchaseItem> items = salesDAO.findPurchaseItems(conn, currentCustomerId);
             salesDAO.validatePurchaseItems(items);
 
             items.forEach(i -> System.out.printf(
@@ -136,11 +139,11 @@ public class CustomerMenu {
             try {
                 var totalAmount = salesDAO.calculateTotalAmount(items);
                 //TODO: Call SalesDAO for purchase transaction
-                int salesId = salesDAO.insertSale(conn, customerId, totalAmount);
+                int salesId = salesDAO.insertSale(conn, currentCustomerId, totalAmount);
                 salesDAO.insertSalesDetails(conn, salesId, items);
                 salesDAO.upsertTotalSales(conn, items);
                 salesDAO.decreaseStock(conn, items);
-                basketDAO.clearBasket(conn, customerId);
+                basketDAO.clearBasket(conn, currentCustomerId);
                 conn.commit();
                 System.out.println("Purchase completed. Total: " + totalAmount);
             } catch (SQLException e) {
@@ -155,12 +158,12 @@ public class CustomerMenu {
     }
 
     //TODO: Call ReviewDAO for review functions
-    private void writeReview(int customerId) {
+    private void writeReview() {
         try (Connection conn = DBConnection.getConnection()) {
             int productId = InputUtil.readInt("Product ID: ");
 
             // 구매 여부 확인
-            if (!reviewDAO.checkPurchaseBeforeReview(conn, customerId, productId)) {
+            if (!reviewDAO.checkPurchaseBeforeReview(conn, currentCustomerId, productId)) {
                 System.out.println("You must purchase this book before writing a review.");
                 return;
             }
@@ -168,33 +171,33 @@ public class CustomerMenu {
             int reviewId = InputUtil.readInt("Review ID: ");
             int rating = InputUtil.readInt("Rating (1-5): ");
             String reviewText = InputUtil.readString("Review: ");
-            reviewDAO.writeReview(conn, reviewId, customerId, productId, rating, reviewText);
+            reviewDAO.writeReview(conn, reviewId, currentCustomerId, productId, rating, reviewText);
         } catch (IllegalArgumentException | SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
 
-    private void deleteReview(int customerId) {
+    private void deleteReview() {
         try (Connection conn = DBConnection.getConnection()) {
             int reviewId = InputUtil.readInt("Review ID to delete: ");
-            reviewDAO.deleteReview(conn, reviewId, customerId);
+            reviewDAO.deleteReview(conn, reviewId, currentCustomerId);
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
 
     //TODO: Call AnalysisDAO for analysis queries
-    private void viewPurchaseHistory(int customerId) {
+    private void viewPurchaseHistory() {
         try (Connection conn = DBConnection.getConnection()) {
-            analysisService.showMyPurchaseHistory(conn, customerId);
+            analysisService.showMyPurchaseHistory(conn, currentCustomerId);
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
 
-    private void viewProfileChangeAnalysis(int customerId) {
+    private void viewProfileChangeAnalysis() {
         try (Connection conn = DBConnection.getConnection()) {
-            analysisService.showPurchasesAroundProfileChange(conn, customerId);
+            analysisService.showPurchasesAroundProfileChange(conn, currentCustomerId);
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
