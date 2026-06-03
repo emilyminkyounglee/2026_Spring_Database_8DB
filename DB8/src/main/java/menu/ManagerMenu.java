@@ -24,7 +24,7 @@ public class ManagerMenu {
     //TODO: Print manager menu
     public void run(Manager manager){
         while (true) {
-            MenuPrinter.printManagerMenu(manager.getRoleName());
+            MenuPrinter.printManagerMenu(manager.getRoleNames());
             //TODO: Get user menu input
             int choice = InputUtil.readInt("Select an option: ");
 
@@ -34,12 +34,12 @@ public class ManagerMenu {
                 return;
             }
 
-            if (!isAllowed(manager.getRoleName(), choice)) {
+            if (!isAllowed(manager, choice)) {
                 System.out.println("You do not have permission for this menu.");
                 continue;
             }
 
-            if (choice == 8 && "MASTER".equals(manager.getRoleName())) {
+            if (choice == 8 && manager.hasRole("MASTER")) {
                 manageManagerRoles();
                 continue;
             }
@@ -62,15 +62,33 @@ public class ManagerMenu {
         System.out.println("Manager login is required.");
     }
 
-    private boolean isAllowed(String roleName, int choice) {
-        if ("MASTER".equals(roleName)) {
+    private boolean isAllowed(Manager manager, int choice) {
+        if (manager.hasRole("MASTER")) {
             return choice >= 1 && choice <= 8;
         }
-        if ("SALES_ANALYSIS".equals(roleName)) {
-            return choice >= 3 && choice <= 5;
+        if (manager.hasRole("SALES_ANALYSIS") && choice >= 3 && choice <= 5) {
+            return true;
         }
-        if ("INVENTORY_MANAGER".equals(roleName)) {
-            return choice == 1 || choice == 6 || choice == 7;
+        if (manager.hasRole("INVENTORY_MANAGER") && (choice == 1 || choice == 6 || choice == 7)) {
+            return true;
+        }
+        if (manager.hasRole("PRICE_MANAGER") && (choice == 2 || choice == 3)) {
+            return true;
+        }
+        if (manager.hasRole("ORDER_MANAGER") && (choice == 4 || choice == 5)) {
+            return true;
+        }
+        if (manager.hasRole("CATEGORY_MANAGER") && choice == 1) {
+            return true;
+        }
+        if (manager.hasRole("CUSTOMER_MANAGER") && choice == 5) {
+            return true;
+        }
+        if (manager.hasRole("REVIEW_MANAGER") && choice == 1) {
+            return true;
+        }
+        if (manager.hasRole("BASKET_MANAGER") && choice == 1) {
+            return true;
         }
         return false;
     }
@@ -81,13 +99,32 @@ public class ManagerMenu {
         System.out.println("1. MASTER");
         System.out.println("2. SALES_ANALYSIS");
         System.out.println("3. INVENTORY_MANAGER");
+        System.out.println("4. CUSTOMER_MANAGER");
+        System.out.println("5. REVIEW_MANAGER");
+        System.out.println("6. PRICE_MANAGER");
+        System.out.println("7. ORDER_MANAGER");
+        System.out.println("8. BASKET_MANAGER");
+        System.out.println("9. CATEGORY_MANAGER");
+        System.out.println("10. SUPPORT_MANAGER");
         int roleId = InputUtil.readInt("New role ID: ");
+        System.out.println("1. Assign role");
+        System.out.println("2. Remove role");
+        int action = InputUtil.readInt("Action: ");
 
-        boolean updated = managerService.updateManagerRole(managerId, roleId);
-        if (updated) {
-            System.out.println("Manager role updated.");
+        boolean updated;
+        if (action == 1) {
+            updated = managerService.assignManagerRole(managerId, roleId);
+        } else if (action == 2) {
+            updated = managerService.removeManagerRole(managerId, roleId);
         } else {
-            System.out.println("Failed to update manager role.");
+            System.out.println("Invalid action.");
+            return;
+        }
+
+        if (updated) {
+            System.out.println("Manager role assignment updated.");
+        } else {
+            System.out.println("Failed to update manager role assignment.");
         }
     }
 

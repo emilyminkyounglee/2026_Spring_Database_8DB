@@ -77,7 +77,7 @@ public class Main {
             Manager manager = managerService.login(email, password);
 
             if (manager != null) {
-                System.out.println("Manager login successful. role = " + manager.getRoleName());
+                System.out.println("Manager login successful. roles = " + manager.getRoleSummary());
                 managerMenu.run(manager);
                 return;
             }

@@ -14,13 +14,10 @@ public class ManagerDAO {
                                           String password) throws SQLException {
         String sql = """
                 SELECT m.manager_id,
-                       m.role_id,
                        m.manager_name,
                        m.email,
-                       m.password,
-                       mr.role_name
+                       m.password
                 FROM manager m
-                JOIN manager_role mr ON m.role_id = mr.role_id
                 WHERE m.email = ?
                 AND m.password = ?
                 """;
@@ -31,7 +28,9 @@ public class ManagerDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return toManager(rs);
+                    Manager manager = toManager(rs);
+                    loadRoles(conn, manager);
+                    return manager;
                 }
                 return null;
             }
@@ -73,29 +72,62 @@ public class ManagerDAO {
         }
     }
 
-    public boolean updateManagerRole(Connection conn, int managerId, int roleId) throws SQLException {
+    public boolean assignManagerRole(Connection conn, int managerId, int roleId) throws SQLException {
         String sql = """
-                UPDATE manager
-                SET role_id = ?
-                WHERE manager_id = ?
+                INSERT IGNORE INTO manager_role_assignment
+                (manager_id, role_id)
+                VALUES (?, ?)
                 """;
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, roleId);
-            pstmt.setInt(2, managerId);
+            pstmt.setInt(1, managerId);
+            pstmt.setInt(2, roleId);
 
             return pstmt.executeUpdate() > 0;
+        }
+    }
+
+    public boolean removeManagerRole(Connection conn, int managerId, int roleId) throws SQLException {
+        String sql = """
+                DELETE FROM manager_role_assignment
+                WHERE manager_id = ?
+                AND role_id = ?
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, managerId);
+            pstmt.setInt(2, roleId);
+
+            return pstmt.executeUpdate() > 0;
+        }
+    }
+
+    private void loadRoles(Connection conn, Manager manager) throws SQLException {
+        String sql = """
+                SELECT mr.role_name
+                FROM manager_role_assignment mra
+                JOIN manager_role mr ON mra.role_id = mr.role_id
+                WHERE mra.manager_id = ?
+                ORDER BY mr.role_id
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, manager.getManagerId());
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    manager.addRoleName(rs.getString("role_name"));
+                }
+            }
         }
     }
 
     private Manager toManager(ResultSet rs) throws SQLException {
         return new Manager(
                 rs.getInt("manager_id"),
-                rs.getInt("role_id"),
                 rs.getString("manager_name"),
                 rs.getString("email"),
-                rs.getString("password"),
-                rs.getString("role_name")
+                rs.getString("password")
         );
     }
 }

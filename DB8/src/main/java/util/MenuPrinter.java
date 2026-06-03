@@ -1,5 +1,7 @@
 package util;
 
+import java.util.Set;
+
 public class MenuPrinter {
 
     private MenuPrinter() {
@@ -30,8 +32,12 @@ public class MenuPrinter {
     }
 
     public static void printManagerMenu(String roleName) {
+        printManagerMenu(Set.of(roleName));
+    }
+
+    public static void printManagerMenu(Set<String> roleNames) {
         System.out.println();
-        System.out.println("===== Manager Menu (" + roleName + ") =====");
+        System.out.println("===== Manager Menu (" + String.join(", ", roleNames) + ") =====");
         System.out.println("1. Search books by category or keyword");
         System.out.println("2. Update product price");
         System.out.println("3. Analyze sales before/after product price changes");
@@ -39,7 +45,7 @@ public class MenuPrinter {
         System.out.println("5. View sales analysis summary");
         System.out.println("6. View inventory status");
         System.out.println("7. Update stock quantity");
-        if ("MASTER".equals(roleName)) {
+        if (roleNames.contains("MASTER")) {
             System.out.println("8. Manage manager roles");
         }
         System.out.println("0. Logout");

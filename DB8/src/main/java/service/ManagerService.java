@@ -28,14 +28,28 @@ public class ManagerService {
         }
     }
 
-    public boolean updateManagerRole(int managerId, int roleId) {
+    public boolean assignManagerRole(int managerId, int roleId) {
         try (Connection conn = DBConnection.getConnection()) {
             if (!managerDAO.existsRole(conn, roleId)) {
                 System.out.println("Role does not exist.");
                 return false;
             }
 
-            return managerDAO.updateManagerRole(conn, managerId, roleId);
+            return managerDAO.assignManagerRole(conn, managerId, roleId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean removeManagerRole(int managerId, int roleId) {
+        try (Connection conn = DBConnection.getConnection()) {
+            if (!managerDAO.existsRole(conn, roleId)) {
+                System.out.println("Role does not exist.");
+                return false;
+            }
+
+            return managerDAO.removeManagerRole(conn, managerId, roleId);
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

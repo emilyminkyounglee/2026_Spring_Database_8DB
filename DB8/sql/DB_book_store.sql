@@ -33,10 +33,15 @@ CREATE TABLE `manager_role` (
 
 CREATE TABLE `manager` (
   `manager_id` INT PRIMARY KEY,
-  `role_id` INT NOT NULL,
   `manager_name` VARCHAR(50) NOT NULL,
   `email` VARCHAR(100) UNIQUE NOT NULL,
   `password` VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE `manager_role_assignment` (
+  `manager_id` INT NOT NULL,
+  `role_id` INT NOT NULL,
+  PRIMARY KEY (`manager_id`, `role_id`)
 );
 
 CREATE TABLE `market_basket` (
@@ -101,7 +106,9 @@ CREATE TABLE `customer_profile_history` (
 
 ALTER TABLE `product` ADD FOREIGN KEY (`category_id`) REFERENCES `book_category` (`category_id`);
 
-ALTER TABLE `manager` ADD FOREIGN KEY (`role_id`) REFERENCES `manager_role` (`role_id`);
+ALTER TABLE `manager_role_assignment` ADD FOREIGN KEY (`manager_id`) REFERENCES `manager` (`manager_id`);
+
+ALTER TABLE `manager_role_assignment` ADD FOREIGN KEY (`role_id`) REFERENCES `manager_role` (`role_id`);
 
 ALTER TABLE `market_basket` ADD FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`);
 

@@ -1,24 +1,24 @@
 package model;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.StringJoiner;
+
 public class Manager {
     private int managerId;
-    private int roleId;
     private String managerName;
     private String email;
     private String password;
-    private String roleName;
+    private Set<String> roleNames = new LinkedHashSet<>();
 
     public Manager() {
     }
 
-    public Manager(int managerId, int roleId, String managerName,
-                   String email, String password, String roleName) {
+    public Manager(int managerId, String managerName, String email, String password) {
         this.managerId = managerId;
-        this.roleId = roleId;
         this.managerName = managerName;
         this.email = email;
         this.password = password;
-        this.roleName = roleName;
     }
 
     public int getManagerId() {
@@ -27,14 +27,6 @@ public class Manager {
 
     public void setManagerId(int managerId) {
         this.managerId = managerId;
-    }
-
-    public int getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(int roleId) {
-        this.roleId = roleId;
     }
 
     public String getManagerName() {
@@ -61,11 +53,34 @@ public class Manager {
         this.password = password;
     }
 
+    public Set<String> getRoleNames() {
+        return roleNames;
+    }
+
+    public void setRoleNames(Set<String> roleNames) {
+        this.roleNames = new LinkedHashSet<>(roleNames);
+    }
+
+    public void addRoleName(String roleName) {
+        roleNames.add(roleName);
+    }
+
+    public boolean hasRole(String roleName) {
+        return roleNames.contains(roleName);
+    }
+
     public String getRoleName() {
-        return roleName;
+        return getRoleSummary();
     }
 
     public void setRoleName(String roleName) {
-        this.roleName = roleName;
+        this.roleNames.clear();
+        this.roleNames.add(roleName);
+    }
+
+    public String getRoleSummary() {
+        StringJoiner joiner = new StringJoiner(", ");
+        roleNames.forEach(joiner::add);
+        return joiner.toString();
     }
 }

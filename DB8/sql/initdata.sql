@@ -121,18 +121,34 @@ VALUES
 (10, 'SUPPORT_MANAGER', 'Can handle customer support operations');
 
 INSERT INTO manager
-(manager_id, role_id, manager_name, email, password)
+(manager_id, manager_name, email, password)
 VALUES
-(1, 1, 'M.Lee', 'mlee051201@gmail.com', 'passwd4mst'),
-(2,	2, 'A.Cristie', 'acriste1890@gmail.com', 'agathaC'),
-(3, 3, 'John.H', 'jlhennessy@gmail.com', 'compArch2025'),
-(4, 4, 'Sarah.K', 'sarahkim@gmail.com', 'custMgr2025'),
-(5, 5, 'David.P', 'davidpark@gmail.com', 'reviewAdmin'),
-(6, 6, 'Emma.J', 'emmajung@gmail.com', 'priceUpdate'),
-(7, 7, 'Michael.C', 'mchoi@gmail.com', 'orderMgr25'),
-(8, 8, 'Sophia.H', 'sophiahan@gmail.com', 'basketAdmin'),
-(9, 9, 'Kevin.S', 'kevinshin@gmail.com', 'report2025'),
-(10, 10, 'Grace.L', 'gracelee@gmail.com', 'supportDesk');
+(1, 'M.Lee', 'mlee051201@gmail.com', 'passwd4mst'),
+(2, 'A.Cristie', 'acriste1890@gmail.com', 'agathaC'),
+(3, 'John.H', 'jlhennessy@gmail.com', 'compArch2025'),
+(4, 'Sarah.K', 'sarahkim@gmail.com', 'custMgr2025'),
+(5, 'David.P', 'davidpark@gmail.com', 'reviewAdmin'),
+(6, 'Emma.J', 'emmajung@gmail.com', 'priceUpdate'),
+(7, 'Michael.C', 'mchoi@gmail.com', 'orderMgr25'),
+(8, 'Sophia.H', 'sophiahan@gmail.com', 'basketAdmin'),
+(9, 'Kevin.S', 'kevinshin@gmail.com', 'report2025'),
+(10, 'Grace.L', 'gracelee@gmail.com', 'supportDesk');
+
+INSERT INTO manager_role_assignment
+(manager_id, role_id)
+VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5),
+(6, 6),
+(6, 2),
+(7, 7),
+(7, 2),
+(8, 8),
+(9, 9),
+(10, 10);
 
 INSERT INTO customer_profile_history
 (profile_id, customer_id, city, membership_level, start_date, end_date)
