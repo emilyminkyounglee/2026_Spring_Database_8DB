@@ -3,6 +3,7 @@ package menu;
 import dao.*;
 import model.Basket;
 import service.AnalysisService;
+import service.CustomerService;
 import util.DBConnection;
 import util.InputUtil;
 import util.MenuPrinter;
@@ -19,6 +20,7 @@ public class CustomerMenu {
     private final SalesDAO salesDAO = new SalesDAO();
     private final ReviewDAO reviewDAO = new ReviewDAO();
     private final AnalysisService analysisService = new AnalysisService();
+    private final CustomerService customerService = new CustomerService();
 
     private int currentCustomerId;
 
@@ -81,17 +83,19 @@ public class CustomerMenu {
     }
 
     private void updateProfile() {
-        try (Connection conn = DBConnection.getConnection()) {
-            String firstName = InputUtil.readString("First name: ");
-            String lastName = InputUtil.readString("Last name: ");
-            String email = InputUtil.readString("Email: ");
-            String phone = InputUtil.readString("Phone: ");
-            String birthStr = InputUtil.readString("Birth date (YYYY-MM-DD): ");
-            Date birthDate = Date.valueOf(birthStr);
+        String city = InputUtil.readString("New city: ");
+        String membershipLevel = InputUtil.readString("New membership level: ");
 
-            customerDAO.updateCustomerProfile(conn, currentCustomerId, firstName, lastName, email, phone, birthDate);
-        } catch (SQLException e) {
-            System.out.println("Error: " + e.getMessage());
+        boolean updated = customerService.updateCustomerProfileHistory(
+                currentCustomerId,
+                city,
+                membershipLevel
+        );
+
+        if (updated) {
+            System.out.println("Customer profile history updated.");
+        } else {
+            System.out.println("Failed to update customer profile history.");
         }
     }
 

@@ -247,6 +247,22 @@ public class CustomerDAO {
         }
     }
 
+    public int getNextProfileId(Connection conn) throws SQLException {
+        String sql = """
+            SELECT COALESCE(MAX(profile_id), 0) + 1 AS next_profile_id
+            FROM customer_profile_history
+            """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("next_profile_id");
+            }
+        }
+
+        throw new SQLException("Failed to generate next profile_id.");
+    }
+
     //TODO: View customer purchase history
     public void viewCustomerPurchaseHistory(Connection conn, int customerId) throws SQLException {
         String sql = """

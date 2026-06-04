@@ -19,27 +19,82 @@ public class CustomerService {
                                  String email,
                                  String password,
                                  String phone,
-                                 Date birthDate) {
+                                 Date birthDate,
+                                 String city,
+                                 String membershipLevel) {
 
         try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
 
-            customerDAO.registerCustomer(
-                    conn,
-                    firstName,
-                    lastName,
-                    email,
-                    password,
-                    phone,
-                    birthDate
-            );
+            try {
+                customerDAO.registerCustomer(
+                        conn,
+                        firstName,
+                        lastName,
+                        email,
+                        password,
+                        phone,
+                        birthDate
+                );
 
-            System.out.println("Customer registered.");
+                Integer customerId = customerDAO.findCustomerIdByEmail(conn, email);
+                if (customerId == null) {
+                    throw new SQLException("Failed to find registered customer.");
+                }
+                int newProfileId = customerDAO.getNextProfileId(conn);
+                customerDAO.insertCustomerProfileHistory(
+                        conn,
+                        newProfileId,
+                        customerId,
+                        city,
+                        membershipLevel
+                );
+
+                conn.commit();
+                System.out.println("Customer registered.");
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+    public boolean updateCustomerProfileHistory(int customerId,
+                                                String city,
+                                                String membershipLevel) {
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
 
+            try {
+                customerDAO.closeCurrentProfileHistory(conn, customerId);
+
+                int newProfileId = customerDAO.getNextProfileId(conn);
+
+                customerDAO.insertCustomerProfileHistory(
+                        conn,
+                        newProfileId,
+                        customerId,
+                        city,
+                        membershipLevel
+                );
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     public Integer login(String email, String password) {
         try (Connection conn = DBConnection.getConnection()) {
             return customerDAO.findCustomerIdByEmailAndPassword(conn, email, password);
@@ -58,6 +113,7 @@ public class CustomerService {
         }
     }
 
+
     // Update customer profile (transaction)
     public void updateCustomerProfile(int customerId,
                                       String firstName,
@@ -65,7 +121,6 @@ public class CustomerService {
                                       String email,
                                       String phone,
                                       Date birthDate,
-                                      int newProfileId,
                                       String city,
                                       String membershipLevel) {
 
@@ -85,6 +140,9 @@ public class CustomerService {
                 );
 
                 customerDAO.closeCurrentProfileHistory(conn, customerId);
+
+                int newProfileId = customerDAO.getNextProfileId(conn);
+
                 customerDAO.insertCustomerProfileHistory(
                         conn,
                         newProfileId,
@@ -104,6 +162,7 @@ public class CustomerService {
             e.printStackTrace();
         }
     }
+
 
     // Write review
     public void writeReview(int customerId,

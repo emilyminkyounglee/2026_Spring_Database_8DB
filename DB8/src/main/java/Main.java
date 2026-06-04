@@ -73,8 +73,19 @@ public class Main {
         String phone = InputUtil.readString("Phone: ");
         String birthStr = InputUtil.readString("Birth date (YYYY-MM-DD): ");
         Date birthDate = Date.valueOf(birthStr);
+        String city = InputUtil.readString("City: ");
+        String membershipLevel = InputUtil.readString("Membership level: ");
 
-        customerService.registerCustomer(firstName, lastName, email, password, phone, birthDate);
+        customerService.registerCustomer(
+                firstName,
+                lastName,
+                email,
+                password,
+                phone,
+                birthDate,
+                city,
+                membershipLevel
+        );
     }
 
     private static void loginManager(ManagerService managerService, ManagerMenu managerMenu) {
