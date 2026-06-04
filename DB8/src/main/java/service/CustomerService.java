@@ -14,8 +14,7 @@ public class CustomerService {
     private final ReviewDAO reviewDAO = new ReviewDAO();
 
     // Register customer
-    public void registerCustomer(int customerId,
-                                 String firstName,
+    public void registerCustomer(String firstName,
                                  String lastName,
                                  String email,
                                  String password,
@@ -26,7 +25,6 @@ public class CustomerService {
 
             customerDAO.registerCustomer(
                     conn,
-                    customerId,
                     firstName,
                     lastName,
                     email,
@@ -108,8 +106,7 @@ public class CustomerService {
     }
 
     // Write review
-    public void writeReview(int reviewId,
-                            int customerId,
+    public void writeReview(int customerId,
                             int productId,
                             int rating,
                             String reviewText) {
@@ -127,7 +124,6 @@ public class CustomerService {
             }
             reviewDAO.writeReview(
                     conn,
-                    reviewId,
                     customerId,
                     productId,
                     rating,

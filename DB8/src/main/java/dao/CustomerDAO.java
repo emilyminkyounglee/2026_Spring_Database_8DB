@@ -4,17 +4,15 @@ import java.sql.*;
 public class CustomerDAO {
     //TODO: Register new customer
     public void registerCustomer(Connection conn,
-                                 int customerId,
                                  String firstName,
                                  String lastName,
                                  String email,
                                  String phone,
                                  Date birthDate) throws SQLException {
-        registerCustomer(conn, customerId, firstName, lastName, email, "password", phone, birthDate);
+        registerCustomer(conn, firstName, lastName, email, "password", phone, birthDate);
     }
 
     public void registerCustomer(Connection conn,
-                                 int customerId,
                                  String firstName,
                                  String lastName,
                                  String email,
@@ -23,18 +21,17 @@ public class CustomerDAO {
                                  Date birthDate) throws SQLException {
         String sql = """
                 INSERT INTO customer
-                (customer_id, first_name, last_name, email, password, phone, birth_date, join_date)
-                VALUES (?, ?, ?, ?, ?, ?, ?, CURDATE())
+                (first_name, last_name, email, password, phone, birth_date, join_date)
+                VALUES (?, ?, ?, ?, ?, ?, CURDATE())
                 """;
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, customerId);
-            pstmt.setString(2, firstName);
-            pstmt.setString(3, lastName);
-            pstmt.setString(4, email);
-            pstmt.setString(5, password);
-            pstmt.setString(6, phone);
-            pstmt.setDate(7, birthDate);
+            pstmt.setString(1, firstName);
+            pstmt.setString(2, lastName);
+            pstmt.setString(3, email);
+            pstmt.setString(4, password);
+            pstmt.setString(5, phone);
+            pstmt.setDate(6, birthDate);
 
             pstmt.executeUpdate();
         }
@@ -98,6 +95,59 @@ public class CustomerDAO {
                     printCustomer(rs);
                 } else {
                     System.out.println("Customer not found.");
+                }
+            }
+        }
+    }
+
+    public void viewCustomerProfile(Connection conn, int customerId) throws SQLException {
+        String customerSql = """
+                SELECT customer_id, first_name, last_name, email, phone, birth_date, join_date
+                FROM customer
+                WHERE customer_id = ?
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(customerSql)) {
+            pstmt.setInt(1, customerId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    System.out.println();
+                    System.out.println("===== My Customer Information =====");
+                    printCustomer(rs);
+                } else {
+                    System.out.println("Customer not found.");
+                    return;
+                }
+            }
+        }
+
+        String profileSql = """
+                SELECT profile_id, city, membership_level, start_date, end_date
+                FROM customer_profile_history
+                WHERE customer_id = ?
+                ORDER BY start_date
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(profileSql)) {
+            pstmt.setInt(1, customerId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                System.out.println();
+                System.out.println("===== Membership / Profile History =====");
+                boolean found = false;
+                while (rs.next()) {
+                    found = true;
+                    System.out.println(
+                            "Profile ID: " + rs.getInt("profile_id") +
+                                    " | City: " + rs.getString("city") +
+                                    " | Membership: " + rs.getString("membership_level") +
+                                    " | Start: " + rs.getTimestamp("start_date") +
+                                    " | End: " + rs.getTimestamp("end_date")
+                    );
+                }
+                if (!found) {
+                    System.out.println("No profile history found.");
                 }
             }
         }
@@ -208,6 +258,7 @@ public class CustomerDAO {
                        s.subtotal,
                        s.total_amount
                 FROM v_customer_purchase_history s
+                JOIN product p ON s.product_id = p.product_id
                 WHERE s.customer_id = ?
                 ORDER BY s.sales_timestamp DESC
                 """;

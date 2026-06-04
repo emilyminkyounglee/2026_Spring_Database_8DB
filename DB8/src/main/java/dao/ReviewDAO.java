@@ -4,7 +4,6 @@ import java.sql.*;
 public class ReviewDAO {
     //TODO: Write book review
     public void writeReview(Connection conn,
-                            int reviewId,
                             int customerId,
                             int productId,
                             int rating,
@@ -15,16 +14,15 @@ public class ReviewDAO {
 
         String sql = """
                 INSERT INTO book_review
-                (review_id, customer_id, product_id, rating, review_text, review_date)
-                VALUES (?, ?, ?, ?, ?, CURDATE())
+                (customer_id, product_id, rating, review_text, review_date)
+                VALUES (?, ?, ?, ?, CURDATE())
                 """;
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, reviewId);
-            pstmt.setInt(2, customerId);
-            pstmt.setInt(3, productId);
-            pstmt.setInt(4, rating);
-            pstmt.setString(5, reviewText);
+            pstmt.setInt(1, customerId);
+            pstmt.setInt(2, productId);
+            pstmt.setInt(3, rating);
+            pstmt.setString(4, reviewText);
 
             pstmt.executeUpdate();
             System.out.println("Review created.");

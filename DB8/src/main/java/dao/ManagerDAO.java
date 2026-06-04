@@ -56,6 +56,48 @@ public class ManagerDAO {
         }
     }
 
+    public Manager findById(Connection conn, int managerId) throws SQLException {
+        String sql = """
+                SELECT manager_id,
+                       manager_name,
+                       email,
+                       password
+                FROM manager
+                WHERE manager_id = ?
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, managerId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Manager manager = toManager(rs);
+                    loadRoles(conn, manager);
+                    return manager;
+                }
+                return null;
+            }
+        }
+    }
+
+    public boolean insertManager(Connection conn, int managerId, String managerName,
+                                 String email, String password) throws SQLException {
+        String sql = """
+                INSERT INTO manager
+                (manager_id, manager_name, email, password)
+                VALUES (?, ?, ?, ?)
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, managerId);
+            pstmt.setString(2, managerName);
+            pstmt.setString(3, email);
+            pstmt.setString(4, password);
+
+            return pstmt.executeUpdate() > 0;
+        }
+    }
+
     public boolean existsRole(Connection conn, int roleId) throws SQLException {
         String sql = """
                 SELECT 1
@@ -97,6 +139,31 @@ public class ManagerDAO {
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, managerId);
             pstmt.setInt(2, roleId);
+
+            return pstmt.executeUpdate() > 0;
+        }
+    }
+
+    public void removeAllManagerRoles(Connection conn, int managerId) throws SQLException {
+        String sql = """
+                DELETE FROM manager_role_assignment
+                WHERE manager_id = ?
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, managerId);
+            pstmt.executeUpdate();
+        }
+    }
+
+    public boolean deleteManager(Connection conn, int managerId) throws SQLException {
+        String sql = """
+                DELETE FROM manager
+                WHERE manager_id = ?
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, managerId);
 
             return pstmt.executeUpdate() > 0;
         }

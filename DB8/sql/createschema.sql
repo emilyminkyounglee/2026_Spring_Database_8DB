@@ -15,7 +15,7 @@ CREATE TABLE `product` (
 );
 
 CREATE TABLE `customer` (
-  `customer_id` INT PRIMARY KEY,
+  `customer_id` INT AUTO_INCREMENT PRIMARY KEY,
   `first_name` VARCHAR(50) NOT NULL,
   `last_name` VARCHAR(50) NOT NULL,
   `email` VARCHAR(100) UNIQUE NOT NULL,
@@ -87,7 +87,7 @@ CREATE TABLE `product_price_history` (
 );
 
 CREATE TABLE `book_review` (
-  `review_id` INT PRIMARY KEY,
+  `review_id` INT AUTO_INCREMENT PRIMARY KEY,
   `customer_id` INT NOT NULL,
   `product_id` INT NOT NULL,
   `rating` INT NOT NULL,

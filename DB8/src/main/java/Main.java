@@ -7,6 +7,7 @@ import service.CustomerService;
 import service.ManagerService;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.SQLException;
 
 
@@ -28,7 +29,8 @@ public class Main {
 
             switch (choice){
                 case 1 -> loginCustomer(customerService, customerMenu);
-                case 2 -> loginManager(managerService, managerMenu);
+                case 2 -> registerCustomer(customerService);
+                case 3 -> loginManager(managerService, managerMenu);
                 case 0 -> {
                     System.out.println("Bye!");
                     return;
@@ -61,6 +63,18 @@ public class Main {
         }
 
         System.out.println("Customer login failed.");
+    }
+
+    private static void registerCustomer(CustomerService customerService) {
+        String firstName = InputUtil.readString("First name: ");
+        String lastName = InputUtil.readString("Last name: ");
+        String email = InputUtil.readString("Email: ");
+        String password = InputUtil.readString("Password: ");
+        String phone = InputUtil.readString("Phone: ");
+        String birthStr = InputUtil.readString("Birth date (YYYY-MM-DD): ");
+        Date birthDate = Date.valueOf(birthStr);
+
+        customerService.registerCustomer(firstName, lastName, email, password, phone, birthDate);
     }
 
     private static void loginManager(ManagerService managerService, ManagerMenu managerMenu) {

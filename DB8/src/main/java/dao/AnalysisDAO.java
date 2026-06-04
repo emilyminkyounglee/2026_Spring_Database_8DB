@@ -203,23 +203,22 @@ public class AnalysisDAO {
     public List<Map<String, Object>> getCustomerPurchaseHistory(Connection conn, int customerId) throws SQLException {
         String sql = """
                 SELECT
-                    s.sales_id,
-                    s.sales_timestamp,
-                    s.total_amount,
+                    v.sales_id,
+                    v.sales_timestamp,
+                    v.total_amount,
                     s.age_at_sale,
-                    sd.sales_detail_id,
-                    p.product_name,
+                    v.product_id,
+                    v.product_name,
                     p.author,
-                    bc.category_name,
-                    sd.quantity,
-                    sd.unit_price_at_sale,
-                    sd.subtotal
-                FROM sales s
-                JOIN sales_detail sd    ON s.sales_id = sd.sales_id
-                JOIN product p          ON sd.product_id = p.product_id
-                JOIN book_category bc   ON p.category_id = bc.category_id
-                WHERE s.customer_id = ?
-                ORDER BY s.sales_timestamp DESC, s.sales_id, sd.sales_detail_id
+                    v.category_name,
+                    v.quantity,
+                    v.unit_price_at_sale,
+                    v.subtotal
+                FROM v_customer_purchase_history v
+                JOIN sales s ON v.sales_id = s.sales_id
+                JOIN product p ON v.product_id = p.product_id
+                WHERE v.customer_id = ?
+                ORDER BY v.sales_timestamp DESC, v.sales_id, v.product_id
                 """;
 
         List<Map<String, Object>> result = new ArrayList<>();
@@ -234,7 +233,7 @@ public class AnalysisDAO {
                     row.put("sales_timestamp", rs.getTimestamp("sales_timestamp"));
                     row.put("total_amount", rs.getBigDecimal("total_amount"));
                     row.put("age_at_sale", rs.getInt("age_at_sale"));
-                    row.put("sales_detail_id", rs.getInt("sales_detail_id"));
+                    row.put("product_id", rs.getInt("product_id"));
                     row.put("product_name", rs.getString("product_name"));
                     row.put("author", rs.getString("author"));
                     row.put("category_name", rs.getString("category_name"));

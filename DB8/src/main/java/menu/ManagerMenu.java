@@ -43,6 +43,14 @@ public class ManagerMenu {
                 manageManagerRoles();
                 continue;
             }
+            if (choice == 9 && manager.hasRole("MASTER")) {
+                registerManager();
+                continue;
+            }
+            if (choice == 10 && manager.hasRole("MASTER")) {
+                dismissManager(manager.getManagerId());
+                continue;
+            }
 
             switch (choice) {
                 case 1 -> searchBooks();
@@ -64,7 +72,7 @@ public class ManagerMenu {
 
     private boolean isAllowed(Manager manager, int choice) {
         if (manager.hasRole("MASTER")) {
-            return choice >= 1 && choice <= 8;
+            return choice >= 1 && choice <= 10;
         }
         if (manager.hasRole("SALES_ANALYSIS") && choice >= 3 && choice <= 5) {
             return true;
@@ -93,19 +101,67 @@ public class ManagerMenu {
         return false;
     }
 
+    private void registerManager() {
+        int managerId = InputUtil.readInt("New manager ID: ");
+        String managerName = InputUtil.readString("Manager name: ");
+        String email = InputUtil.readString("Email: ");
+        String password = InputUtil.readString("Password: ");
+
+        printRoleOptions();
+        int roleId = InputUtil.readInt("Initial role ID: ");
+
+        boolean registered = managerService.registerManager(managerId, managerName, email, password, roleId);
+        if (registered) {
+            System.out.println("Manager registered.");
+        } else {
+            System.out.println("Failed to register manager.");
+        }
+    }
+
+    private void dismissManager(int currentManagerId) {
+        int managerId = InputUtil.readInt("Target manager ID to dismiss: ");
+        if (managerId == currentManagerId) {
+            System.out.println("You cannot dismiss your own manager account while logged in.");
+            return;
+        }
+
+        Manager targetManager = managerService.findManagerById(managerId);
+        if (targetManager == null) {
+            System.out.println("Manager not found.");
+            return;
+        }
+
+        System.out.println("Target manager: " + targetManager.getManagerName()
+                + " (" + targetManager.getEmail() + ")");
+        System.out.println("Current roles: " + targetManager.getRoleSummary());
+
+        String confirm = InputUtil.readString("Dismiss this manager? (y/n): ");
+        if (!"y".equalsIgnoreCase(confirm)) {
+            System.out.println("Dismiss cancelled.");
+            return;
+        }
+
+        boolean dismissed = managerService.dismissManager(managerId);
+        if (dismissed) {
+            System.out.println("Manager dismissed.");
+        } else {
+            System.out.println("Failed to dismiss manager.");
+        }
+    }
+
     private void manageManagerRoles() {
         int managerId = InputUtil.readInt("Target manager ID: ");
+        Manager targetManager = managerService.findManagerById(managerId);
+        if (targetManager == null) {
+            System.out.println("Manager not found.");
+            return;
+        }
 
-        System.out.println("1. MASTER");
-        System.out.println("2. SALES_ANALYSIS");
-        System.out.println("3. INVENTORY_MANAGER");
-        System.out.println("4. CUSTOMER_MANAGER");
-        System.out.println("5. REVIEW_MANAGER");
-        System.out.println("6. PRICE_MANAGER");
-        System.out.println("7. ORDER_MANAGER");
-        System.out.println("8. BASKET_MANAGER");
-        System.out.println("9. CATEGORY_MANAGER");
-        System.out.println("10. SUPPORT_MANAGER");
+        System.out.println("Target manager: " + targetManager.getManagerName()
+                + " (" + targetManager.getEmail() + ")");
+        System.out.println("Current roles: " + targetManager.getRoleSummary());
+
+        printRoleOptions();
         int roleId = InputUtil.readInt("New role ID: ");
         System.out.println("1. Assign role");
         System.out.println("2. Remove role");
@@ -126,6 +182,19 @@ public class ManagerMenu {
         } else {
             System.out.println("Failed to update manager role assignment.");
         }
+    }
+
+    private void printRoleOptions() {
+        System.out.println("1. MASTER");
+        System.out.println("2. SALES_ANALYSIS");
+        System.out.println("3. INVENTORY_MANAGER");
+        System.out.println("4. CUSTOMER_MANAGER");
+        System.out.println("5. REVIEW_MANAGER");
+        System.out.println("6. PRICE_MANAGER");
+        System.out.println("7. ORDER_MANAGER");
+        System.out.println("8. BASKET_MANAGER");
+        System.out.println("9. CATEGORY_MANAGER");
+        System.out.println("10. SUPPORT_MANAGER");
     }
 
     //TODO: Call ProductDAO for book search and price updates

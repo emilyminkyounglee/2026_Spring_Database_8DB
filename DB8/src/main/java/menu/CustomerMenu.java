@@ -14,6 +14,7 @@ import java.util.List;
 
 public class CustomerMenu {
     private final CustomerDAO customerDAO = new CustomerDAO();
+    private final ProductDAO productDAO = new ProductDAO();
     private final BasketDAO basketDAO = new BasketDAO();
     private final SalesDAO salesDAO = new SalesDAO();
     private final ReviewDAO reviewDAO = new ReviewDAO();
@@ -35,40 +36,45 @@ public class CustomerMenu {
                     System.out.println("Logged out.");
                     return;
                 }
-                case 1 -> registerCustomer();
+                case 1 -> searchBooks();
                 case 2 -> addToBasket();
                 case 3 -> removeFromBasket();
                 case 4 -> purchase();
                 case 5 -> viewPurchaseHistory();
                 case 6 -> viewProfileChangeAnalysis();
                 case 7 -> viewPopularCategories();
-                case 8 -> updateProfile();
-                case 9 -> writeReview();
-                case 10 -> deleteReview();
+                case 8 -> viewMyProfile();
+                case 9 -> updateProfile();
+                case 10 -> writeReview();
+                case 11 -> deleteReview();
                 //TODO: Handle invaild menu input
                 default -> System.out.println("Invalid option. Please try again.");
             }
         }
     }
 
-    public void run(){
-        run(-1);
+    private void searchBooks() {
+        try (Connection conn = DBConnection.getConnection()) {
+            String keyword = InputUtil.readStringOrEmpty("Keyword (title/author, Enter to skip): ");
+            String category = InputUtil.readStringOrEmpty("Category (Enter to skip): ");
+            var result = productDAO.searchBooks(conn, keyword, category);
+            if (result.isEmpty()) {
+                System.out.println("No books found.");
+                return;
+            }
+
+            result.forEach(p -> System.out.printf(
+                    "ID: %d | %s | %s | %s | %s | Stock: %d%n",
+                    p.getProductId(), p.getProductName(), p.getAuthor(),
+                    p.getPublisher(), p.getUnitPrice(), p.getStockQuantity()));
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
-    //TODO: Call CustomerDAO for customer-related functions
-    private void registerCustomer() {
+    private void viewMyProfile() {
         try (Connection conn = DBConnection.getConnection()) {
-            int customerId = InputUtil.readInt("Customer ID: ");
-            String firstName = InputUtil.readString("First name: ");
-            String lastName = InputUtil.readString("Last name: ");
-            String email = InputUtil.readString("Email: ");
-            String password = InputUtil.readString("Password: ");
-            String phone = InputUtil.readString("Phone: ");
-            String birthStr = InputUtil.readString("Birth date (YYYY-MM-DD): ");
-            Date birthDate = Date.valueOf(birthStr);
-
-            customerDAO.registerCustomer(conn, customerId, firstName, lastName, email, password, phone, birthDate);
-            System.out.println("Customer registered successfully.");
+            customerDAO.viewCustomerProfile(conn, currentCustomerId);
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -168,10 +174,9 @@ public class CustomerMenu {
                 return;
             }
 
-            int reviewId = InputUtil.readInt("Review ID: ");
             int rating = InputUtil.readInt("Rating (1-5): ");
             String reviewText = InputUtil.readString("Review: ");
-            reviewDAO.writeReview(conn, reviewId, currentCustomerId, productId, rating, reviewText);
+            reviewDAO.writeReview(conn, currentCustomerId, productId, rating, reviewText);
         } catch (IllegalArgumentException | SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }

@@ -12,22 +12,30 @@ public class ProductDAO {
         String sql;
         if (category == null || category.isBlank()){
             sql = """
-                SELECT product_id, category_id, product_name, author, publisher, unit_price, stock_quantity
-                FROM v_product_catalog
-                WHERE product_name LIKE ? OR author LIKE ?
+                SELECT v.product_id,
+                       v.category_id,
+                       v.product_name,
+                       v.author,
+                       v.publisher,
+                       v.unit_price,
+                       v.stock_quantity
+                FROM v_product_catalog v
+                JOIN book_category bc ON v.category_id = bc.category_id
+                WHERE v.product_name LIKE ? OR v.author LIKE ?
                 """;
         } else {
             sql = """
-                SELECT product_id,
-                       category_id,
-                       product_name,
-                       author,
-                       publisher,
-                       unit_price,
-                       stock_quantity
-                FROM v_product_catalog
-                WHERE product_name LIKE ?
-                OR category_name LIKE ?
+                SELECT v.product_id,
+                       v.category_id,
+                       v.product_name,
+                       v.author,
+                       v.publisher,
+                       v.unit_price,
+                       v.stock_quantity
+                FROM v_product_catalog v
+                JOIN book_category bc ON v.category_id = bc.category_id
+                WHERE v.product_name LIKE ?
+                OR bc.category_name LIKE ?
                 """;
         }
 
