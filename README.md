@@ -50,3 +50,23 @@ feat: add customer menu
 fix: rollback transaction bug
 docs: update README
 ```
+
+
+---
+
+# How to Run
+
+## 1. Database Setup
+
+Create or select the target MySQL database first.
+
+> Do not include `USE DATABASE` commands inside submitted SQL scripts.
+
+Run the SQL scripts in this order:
+
+```bash
+# In MySQL or DBeaver SQL editor
+DB8/sql/dropschema.sql
+DB8/sql/createschema.sql
+DB8/sql/views.sql
+DB8/sql/initdata.sql
