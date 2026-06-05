@@ -227,40 +227,22 @@ public class CustomerDAO {
 
     //TODO: Insert new customer profile history
     public void insertCustomerProfileHistory(Connection conn,
-                                             int profileId,
                                              int customerId,
                                              String city,
                                              String membershipLevel) throws SQLException {
         String sql = """
             INSERT INTO customer_profile_history
-            (profile_id, customer_id, city, membership_level, start_date, end_date)
-            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, NULL)
+            (customer_id, city, membership_level, start_date, end_date)
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP, NULL)
             """;
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, profileId);
-            pstmt.setInt(2, customerId);
-            pstmt.setString(3, city);
-            pstmt.setString(4, membershipLevel);
+            pstmt.setInt(1, customerId);
+            pstmt.setString(2, city);
+            pstmt.setString(3, membershipLevel);
 
             pstmt.executeUpdate();
         }
-    }
-
-    public int getNextProfileId(Connection conn) throws SQLException {
-        String sql = """
-            SELECT COALESCE(MAX(profile_id), 0) + 1 AS next_profile_id
-            FROM customer_profile_history
-            """;
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("next_profile_id");
-            }
-        }
-
-        throw new SQLException("Failed to generate next profile_id.");
     }
 
     //TODO: View customer purchase history

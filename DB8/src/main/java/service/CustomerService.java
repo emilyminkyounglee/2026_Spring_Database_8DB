@@ -41,10 +41,8 @@ public class CustomerService {
                 if (customerId == null) {
                     throw new SQLException("Failed to find registered customer.");
                 }
-                int newProfileId = customerDAO.getNextProfileId(conn);
                 customerDAO.insertCustomerProfileHistory(
                         conn,
-                        newProfileId,
                         customerId,
                         city,
                         membershipLevel
@@ -72,11 +70,8 @@ public class CustomerService {
             try {
                 customerDAO.closeCurrentProfileHistory(conn, customerId);
 
-                int newProfileId = customerDAO.getNextProfileId(conn);
-
                 customerDAO.insertCustomerProfileHistory(
                         conn,
-                        newProfileId,
                         customerId,
                         city,
                         membershipLevel
@@ -141,11 +136,8 @@ public class CustomerService {
 
                 customerDAO.closeCurrentProfileHistory(conn, customerId);
 
-                int newProfileId = customerDAO.getNextProfileId(conn);
-
                 customerDAO.insertCustomerProfileHistory(
                         conn,
-                        newProfileId,
                         customerId,
                         city,
                         membershipLevel

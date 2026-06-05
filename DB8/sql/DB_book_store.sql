@@ -96,7 +96,7 @@ CREATE TABLE `book_review` (
 );
 
 CREATE TABLE `customer_profile_history` (
-  `profile_id` INT PRIMARY KEY,
+  `profile_id` INT AUTO_INCREMENT PRIMARY KEY,
   `customer_id` INT NOT NULL,
   `city` VARCHAR(50),
   `membership_level` VARCHAR(30),
