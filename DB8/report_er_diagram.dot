@@ -1,0 +1,181 @@
+digraph DB8_ERD {
+  graph [
+    rankdir=LR,
+    splines=ortho,
+    nodesep=0.55,
+    ranksep=0.95,
+    bgcolor="white",
+    pad=0.25,
+    labelloc="t",
+    label="DB8 Online Bookstore ER Diagram",
+    fontsize=24,
+    fontname="Helvetica"
+  ];
+
+  node [
+    shape=plain,
+    fontname="Helvetica"
+  ];
+
+  edge [
+    color="#4b5563",
+    penwidth=1.6,
+    arrowsize=0.8,
+    fontname="Helvetica",
+    fontsize=10
+  ];
+
+  book_category [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#374151">
+      <TR><TD BGCOLOR="#2563eb"><FONT COLOR="white"><B>book_category</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> category_id</TD></TR>
+      <TR><TD ALIGN="LEFT">category_name UNIQUE</TD></TR>
+      <TR><TD ALIGN="LEFT">description</TD></TR>
+    </TABLE>
+  >];
+
+  product [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#374151">
+      <TR><TD BGCOLOR="#2563eb"><FONT COLOR="white"><B>product</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> product_id</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> category_id</TD></TR>
+      <TR><TD ALIGN="LEFT">product_name</TD></TR>
+      <TR><TD ALIGN="LEFT">author, publisher</TD></TR>
+      <TR><TD ALIGN="LEFT">unit_price</TD></TR>
+      <TR><TD ALIGN="LEFT">stock_quantity</TD></TR>
+    </TABLE>
+  >];
+
+  customer [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#374151">
+      <TR><TD BGCOLOR="#059669"><FONT COLOR="white"><B>customer</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> customer_id</TD></TR>
+      <TR><TD ALIGN="LEFT">first_name, last_name</TD></TR>
+      <TR><TD ALIGN="LEFT">email UNIQUE</TD></TR>
+      <TR><TD ALIGN="LEFT">password</TD></TR>
+      <TR><TD ALIGN="LEFT">phone</TD></TR>
+      <TR><TD ALIGN="LEFT">birth_date, join_date</TD></TR>
+    </TABLE>
+  >];
+
+  customer_profile_history [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#374151">
+      <TR><TD BGCOLOR="#059669"><FONT COLOR="white"><B>customer_profile_history</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> profile_id</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> customer_id</TD></TR>
+      <TR><TD ALIGN="LEFT">city</TD></TR>
+      <TR><TD ALIGN="LEFT">membership_level</TD></TR>
+      <TR><TD ALIGN="LEFT">start_date, end_date</TD></TR>
+    </TABLE>
+  >];
+
+  market_basket [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#374151">
+      <TR><TD BGCOLOR="#f59e0b"><FONT COLOR="white"><B>market_basket</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> basket_id</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> customer_id</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> product_id</TD></TR>
+      <TR><TD ALIGN="LEFT">quantity</TD></TR>
+      <TR><TD ALIGN="LEFT">added_at</TD></TR>
+      <TR><TD ALIGN="LEFT">unit_price_at_added</TD></TR>
+    </TABLE>
+  >];
+
+  sales [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#374151">
+      <TR><TD BGCOLOR="#dc2626"><FONT COLOR="white"><B>sales</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> sales_id</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> customer_id</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> profile_id</TD></TR>
+      <TR><TD ALIGN="LEFT">sales_timestamp</TD></TR>
+      <TR><TD ALIGN="LEFT">total_amount</TD></TR>
+      <TR><TD ALIGN="LEFT">age_at_sale</TD></TR>
+    </TABLE>
+  >];
+
+  sales_detail [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#374151">
+      <TR><TD BGCOLOR="#dc2626"><FONT COLOR="white"><B>sales_detail</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> sales_detail_id</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> sales_id</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> product_id</TD></TR>
+      <TR><TD ALIGN="LEFT">quantity</TD></TR>
+      <TR><TD ALIGN="LEFT">unit_price_at_sale</TD></TR>
+      <TR><TD ALIGN="LEFT">subtotal</TD></TR>
+    </TABLE>
+  >];
+
+  total_sales [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#374151">
+      <TR><TD BGCOLOR="#7c3aed"><FONT COLOR="white"><B>total_sales</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> total_sales_id</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK/UNIQUE</B> product_id</TD></TR>
+      <TR><TD ALIGN="LEFT">total_quantity</TD></TR>
+      <TR><TD ALIGN="LEFT">total_revenue</TD></TR>
+    </TABLE>
+  >];
+
+  product_price_history [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#374151">
+      <TR><TD BGCOLOR="#7c3aed"><FONT COLOR="white"><B>product_price_history</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> price_history_id</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> product_id</TD></TR>
+      <TR><TD ALIGN="LEFT">unit_price</TD></TR>
+      <TR><TD ALIGN="LEFT">start_date, end_date</TD></TR>
+    </TABLE>
+  >];
+
+  book_review [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#374151">
+      <TR><TD BGCOLOR="#0f766e"><FONT COLOR="white"><B>book_review</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> review_id</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> customer_id</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> product_id</TD></TR>
+      <TR><TD ALIGN="LEFT">rating</TD></TR>
+      <TR><TD ALIGN="LEFT">review_text</TD></TR>
+      <TR><TD ALIGN="LEFT">review_date</TD></TR>
+    </TABLE>
+  >];
+
+  manager [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#374151">
+      <TR><TD BGCOLOR="#1f2937"><FONT COLOR="white"><B>manager</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> manager_id</TD></TR>
+      <TR><TD ALIGN="LEFT">manager_name</TD></TR>
+      <TR><TD ALIGN="LEFT">email UNIQUE</TD></TR>
+      <TR><TD ALIGN="LEFT">password</TD></TR>
+    </TABLE>
+  >];
+
+  manager_role [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#374151">
+      <TR><TD BGCOLOR="#1f2937"><FONT COLOR="white"><B>manager_role</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> role_id</TD></TR>
+      <TR><TD ALIGN="LEFT">role_name UNIQUE</TD></TR>
+      <TR><TD ALIGN="LEFT">description</TD></TR>
+    </TABLE>
+  >];
+
+  manager_role_assignment [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#374151">
+      <TR><TD BGCOLOR="#1f2937"><FONT COLOR="white"><B>manager_role_assignment</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK/FK</B> manager_id</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK/FK</B> role_id</TD></TR>
+    </TABLE>
+  >];
+
+  book_category -> product [label="1 to many"];
+  customer -> market_basket [label="1 to many"];
+  product -> market_basket [label="1 to many"];
+  customer -> customer_profile_history [label="1 to many"];
+  customer -> sales [label="1 to many"];
+  customer_profile_history -> sales [label="1 to many"];
+  sales -> sales_detail [label="1 to many"];
+  product -> sales_detail [label="1 to many"];
+  product -> total_sales [label="1 to 1"];
+  product -> product_price_history [label="1 to many"];
+  customer -> book_review [label="1 to many"];
+  product -> book_review [label="1 to many"];
+  manager -> manager_role_assignment [label="1 to many"];
+  manager_role -> manager_role_assignment [label="1 to many"];
+}
