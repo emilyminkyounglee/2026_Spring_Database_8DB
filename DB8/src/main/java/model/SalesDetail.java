@@ -2,6 +2,7 @@ package model;
 
 import java.math.BigDecimal;
 
+// [REQ13][REQ17] Model class representing one sales_detail row.
 public class SalesDetail {
     private int salesDetailId;
     private int salesId;
@@ -10,9 +11,11 @@ public class SalesDetail {
     private BigDecimal unitPriceAtSale;
     private BigDecimal subtotal;
 
+    // [REQ17] Default constructor used when creating sales detail objects manually.
     public SalesDetail() {
     }
 
+    // [REQ13][REQ17] Full constructor includes unit_price_at_sale to preserve past prices.
     public SalesDetail(int salesDetailId, int salesId, int productId, int quantity,
                        BigDecimal unitPriceAtSale, BigDecimal subtotal) {
         this.salesDetailId = salesDetailId;
@@ -23,6 +26,7 @@ public class SalesDetail {
         this.subtotal = subtotal;
     }
 
+    // [REQ17] Standard getters and setters expose sales_detail fields.
     public int getSalesDetailId() {
         return salesDetailId;
     }

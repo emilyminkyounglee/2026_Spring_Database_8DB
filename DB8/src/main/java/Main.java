@@ -1,9 +1,128 @@
-public class Main {
-    //TODO: Start program and connect menus/services
+import menu.CustomerMenu;
+import menu.ManagerMenu;
+import util.InputUtil;
+import util.MenuPrinter;
+import model.Manager;
+import service.CustomerService;
+import service.ManagerService;
 
-    public static void main(String[] args) throws Exception {
-        try (java.sql.Connection conn = util.DBConnection.get()) {
-            System.out.println("Connected: " + conn.getCatalog());
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.SQLException;
+
+
+public class Main {
+    private static final int MAX_PASSWORD_ATTEMPTS = 3;
+
+    // [REQ15] Starts the text-based application and routes users to customer or manager menus.
+    public static void main(String[] args) {
+        testConnection();
+
+        CustomerMenu customerMenu = new CustomerMenu();
+        CustomerService customerService = new CustomerService();
+        ManagerMenu managerMenu = new ManagerMenu();
+        ManagerService managerService = new ManagerService();
+
+        while (true){
+            MenuPrinter.printMainMenu();
+            int choice = InputUtil.readInt("Select an option: ");
+
+            switch (choice){
+                case 1 -> loginCustomer(customerService, customerMenu);
+                case 2 -> registerCustomer(customerService);
+                case 3 -> loginManager(managerService, managerMenu);
+                case 0 -> {
+                    System.out.println("Bye!");
+                    return;
+                }
+                default -> System.out.println("Invalid input!");
+            }
+        }
+    }
+
+    // [REQ15] Handles customer login before opening the customer-only menu.
+    private static void loginCustomer(CustomerService customerService, CustomerMenu customerMenu) {
+        String email = InputUtil.readString("Customer email: ");
+        Integer customerId = customerService.findCustomerIdByEmail(email);
+
+        if (customerId == null) {
+            System.out.println("Customer email does not exist. Please register as a new customer first.");
+            return;
+        }
+
+        for (int attempt = 1; attempt <= MAX_PASSWORD_ATTEMPTS; attempt++) {
+            String password = InputUtil.readString("Password: ");
+            Integer authenticatedCustomerId = customerService.login(email, password);
+
+            if (authenticatedCustomerId != null) {
+                System.out.println("Customer login successful.");
+                customerMenu.run(authenticatedCustomerId);
+                return;
+            }
+
+            System.out.println("Incorrect password. Attempts left: " + (MAX_PASSWORD_ATTEMPTS - attempt));
+        }
+
+        System.out.println("Customer login failed.");
+    }
+
+    // [REQ5] Collects user text input for customer registration.
+    private static void registerCustomer(CustomerService customerService) {
+        String firstName = InputUtil.readString("First name: ");
+        String lastName = InputUtil.readString("Last name: ");
+        String email = InputUtil.readString("Email: ");
+        String password = InputUtil.readString("Password: ");
+        String phone = InputUtil.readString("Phone: ");
+        String birthStr = InputUtil.readString("Birth date (YYYY-MM-DD): ");
+        Date birthDate = Date.valueOf(birthStr);
+        String city = InputUtil.readString("City: ");
+        String membershipLevel = InputUtil.readString("Membership level: ");
+
+        customerService.registerCustomer(
+                firstName,
+                lastName,
+                email,
+                password,
+                phone,
+                birthDate,
+                city,
+                membershipLevel
+        );
+    }
+
+    // [REQ15] Handles manager login and passes the authenticated manager roles to ManagerMenu.
+    private static void loginManager(ManagerService managerService, ManagerMenu managerMenu) {
+        String email = InputUtil.readString("Manager email: ");
+        Integer managerId = managerService.findManagerIdByEmail(email);
+
+        if (managerId == null) {
+            System.out.println("Manager email does not exist.");
+            return;
+        }
+
+        for (int attempt = 1; attempt <= MAX_PASSWORD_ATTEMPTS; attempt++) {
+            String password = InputUtil.readString("Password: ");
+            Manager manager = managerService.login(email, password);
+
+            if (manager != null) {
+                System.out.println("Manager login successful. roles = " + manager.getRoleSummary());
+                managerMenu.run(manager);
+                return;
+            }
+
+            System.out.println("Incorrect password. Attempts left: " + (MAX_PASSWORD_ATTEMPTS - attempt));
+        }
+
+        System.out.println("Manager login failed.");
+    }
+
+    // [REQ19] Confirms that the application can connect to the configured MySQL database.
+    private static void testConnection(){
+        try (Connection conn = util.DBConnection.getConnection()){
+            System.out.println("Connected to database: " + conn.getCatalog());
+        } catch (SQLException e){
+            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

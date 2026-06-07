@@ -1,13 +1,204 @@
 package dao;
 
+import model.Product;
+import java.math.BigDecimal;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ProductDAO {
-    //TODO: Search books by category or keyword
 
-    //TODO: Insert new book
+    // [REQ6][REQ10] Searches books using user input, v_product_catalog, and a category join.
+    public List<Product> searchBooks(Connection conn, String keyword, String category) throws SQLException {
+        String sql;
+        if (category == null || category.isBlank()){
+            sql = """
+                SELECT v.product_id,
+                       v.category_id,
+                       v.product_name,
+                       v.author,
+                       v.publisher,
+                       v.unit_price,
+                       v.stock_quantity
+                FROM v_product_catalog v
+                JOIN book_category bc ON v.category_id = bc.category_id
+                WHERE v.product_name LIKE ? OR v.author LIKE ?
+                """;
+        } else {
+            sql = """
+                SELECT v.product_id,
+                       v.category_id,
+                       v.product_name,
+                       v.author,
+                       v.publisher,
+                       v.unit_price,
+                       v.stock_quantity
+                FROM v_product_catalog v
+                JOIN book_category bc ON v.category_id = bc.category_id
+                WHERE v.product_name LIKE ?
+                OR bc.category_name LIKE ?
+                """;
+        }
 
-    //TODO: Update product price
+        List<Product> result = new ArrayList<>();
+        // [REQ10] Keyword and category inputs are bound through PreparedStatement.
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (category == null || category.isBlank()) {
+                ps.setString(1, "%" + keyword + "%");
+                ps.setString(2, "%" + keyword + "%");
+            } else {
+                ps.setString(1, "%" + keyword + "%");
+                ps.setString(2, "%" + category + "%");
+            }
 
-    //TODO: Find product by product_id or title
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Product p = new Product();
+                    p.setProductId(rs.getInt("product_id"));
+                    p.setProductName(rs.getString("product_name"));
+                    p.setAuthor(rs.getString("author"));
+                    p.setPublisher(rs.getString("publisher"));
+                    p.setUnitPrice(rs.getBigDecimal("unit_price"));
+                    p.setStockQuantity(rs.getInt("stock_quantity"));
+                    result.add(p);
+                }
+            }
+        }
+        return result;
+    }
 
-    //TODO: Analyze sales before/after product price changes
+    // [REQ10] Checks product existence with a bound product id.
+    public boolean existsById(Connection conn, int productId) throws SQLException {
+        String sql = "SELECT 1 FROM product WHERE product_id = ?";
+        // [REQ10] Product id is passed as a bind variable.
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    // [REQ8][REQ13] Closes the current active price history row before inserting a new price.
+    public void closeCurrentPriceHistory(Connection conn, int productId) throws SQLException {
+        String sql = """
+                UPDATE product_price_history
+                SET end_date = NOW()
+                WHERE product_id = ?
+                AND end_date IS NULL
+                """;
+        // [REQ10] Product id is safely bound in the update query.
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            ps.executeUpdate();
+        }
+    }
+
+    // [REQ5][REQ13] Inserts a new product_price_history row for the updated price.
+    public void insertPriceHistory(Connection conn, int productId, BigDecimal newPrice) throws SQLException {
+        String sql = """
+                INSERT INTO product_price_history
+                    (product_id, unit_price, start_date, end_date)
+                VALUES (?, ?, NOW(), NULL)
+                """;
+        // [REQ10] Product id and new price are bound through PreparedStatement.
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            ps.setBigDecimal(2, newPrice);
+            ps.executeUpdate();
+        }
+    }
+
+    // [REQ8][REQ13] Updates the current price stored in product.
+    public boolean updateProductPrice(Connection conn, int productId, BigDecimal newPrice) throws SQLException {
+        String sql = """
+                UPDATE product
+                SET unit_price = ?
+                WHERE product_id = ?
+                """;
+        // [REQ10] New price and product id are bound through PreparedStatement.
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBigDecimal(1, newPrice);
+            ps.setInt(2, productId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // [REQ8] Adds inventory quantity for an existing product.
+    public boolean addStock(Connection conn, int productId, int quantity) throws SQLException {
+        String sql = """
+                UPDATE product
+                SET stock_quantity = stock_quantity + ?
+                WHERE product_id = ?
+                """;
+        // [REQ10] Quantity and product id are bound through PreparedStatement.
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, quantity);
+            ps.setInt(2, productId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // [REQ7][REQ13] Aggregates sales before and after product price changes.
+    public void analyzePriceChangeSales(Connection conn, int productId) throws SQLException {
+        String sql = """
+                SELECT
+                    pph.unit_price AS price,
+                    pph.start_date,
+                    pph.end_date,
+                    COUNT(sd.sales_detail_id) AS order_count,
+                    COALESCE(SUM(sd.quantity), 0) AS total_quantity,
+                    COALESCE(SUM(sd.subtotal), 0) AS total_revenue
+                FROM product_price_history pph
+                LEFT JOIN sales_detail sd
+                    ON sd.product_id = pph.product_id
+                    AND sd.unit_price_at_sale = pph.unit_price
+                WHERE pph.product_id = ?
+                GROUP BY pph.price_history_id, pph.unit_price, pph.start_date, pph.end_date
+                ORDER BY pph.start_date
+                """;
+        // [REQ10] Product id from user input is bound to the analysis query.
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                System.out.println("\n===== 가격 변경 전후 매출 분석 =====");
+                System.out.printf("%-12s %-22s %-22s %-10s %-10s %-12s%n",
+                        "가격", "시작일", "종료일", "주문건수", "판매수량", "총매출");
+                System.out.println("-".repeat(90));
+                while (rs.next()) {
+                    System.out.printf("%-12s %-22s %-22s %-10d %-10d %-12s%n",
+                            rs.getBigDecimal("price"),
+                            rs.getString("start_date"),
+                            rs.getString("end_date") == null ? "현재" : rs.getString("end_date"),
+                            rs.getInt("order_count"),
+                            rs.getInt("total_quantity"),
+                            rs.getBigDecimal("total_revenue"));
+                }
+            }
+        }
+    }
+
+    // [REQ5] Inserts a new book from manager-entered product information.
+    public void insertBook(Connection conn, int productId, int categoryId, String productName,
+                           String author, String publisher,
+                           BigDecimal unitPrice, int stockQuantity) throws SQLException {
+        String sql = """
+                INSERT INTO product
+                    (product_id, category_id, product_name, author, publisher, unit_price, stock_quantity)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """;
+        // [REQ10] All product fields are bound through PreparedStatement.
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            ps.setInt(2, categoryId);
+            ps.setString(3, productName);
+            ps.setString(4, author);
+            ps.setString(5, publisher);
+            ps.setBigDecimal(6, unitPrice);
+            ps.setInt(7, stockQuantity);
+            ps.executeUpdate();
+            System.out.println("책이 추가되었습니다.");
+        }
+    }
+
 }

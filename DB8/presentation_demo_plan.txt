@@ -1,0 +1,232 @@
+Online Bookstore JDBC Project - Presentation and Demo Plan
+
+1. Opening
+
+Our project is an online bookstore and sales analysis system.
+It supports customer registration, book search, basket management, purchase transactions, review management, and manager-side sales analysis.
+
+The main design focus is not only selling books, but also preserving historical data such as product price changes and customer profile changes.
+
+
+2. Schema Design Points
+
+Main tables:
+- customer
+- product
+- book_category
+- market_basket
+- sales
+- sales_detail
+- total_sales
+- book_review
+- product_price_history
+- customer_profile_history
+- manager
+- manager_role
+- manager_role_assignment
+
+Important schema ideas:
+- sales_detail.unit_price_at_sale stores the product price at the time of sale.
+- product_price_history stores product price changes over time.
+- customer_profile_history stores customer city and membership changes over time.
+- sales.profile_id and sales.age_at_sale preserve the customer profile and age at the time of sale.
+- manager_role_assignment supports many-to-many role assignment, so one manager can have multiple roles.
+
+
+3. JDBC Implementation Points
+
+PreparedStatement:
+We used PreparedStatement for user input queries.
+Instead of concatenating user input directly into SQL strings, we used placeholders and bound values using setString, setInt, setBigDecimal, and setDate.
+This helps prevent SQL injection and handles data types safely.
+
+Connection structure:
+Most DAO methods receive Connection conn as the first parameter.
+This allows the service or menu layer to control transactions when multiple SQL statements must be executed together.
+
+Transactions:
+Important update operations are executed as transactions.
+Examples:
+- Purchase books in market basket
+- Update product price and price history
+- Register or dismiss manager with role assignments
+
+If an SQL exception occurs in the middle, rollback is executed so partial updates are not saved.
+
+
+4. Recommended Live Demo Flow
+
+Demo setup:
+- Show two windows during the demo.
+- Left window: Java application console.
+- Right window: MySQL terminal or DBeaver SQL result.
+
+
+Demo 1: Manager Login and Role-Based Access
+
+Java:
+1. Select Manager Login.
+2. Login with:
+   email: mlee051201@gmail.com
+   password: passwd4mst
+3. Show that the login result prints:
+   roles = MASTER
+4. Show MASTER-only menus:
+   8. Manage manager roles
+   9. Register new manager
+   10. Dismiss manager
+
+Explanation:
+The MASTER manager can access all manager functions and can manage other manager accounts and roles.
+
+MySQL check:
+SELECT m.manager_id, m.manager_name, mr.role_name
+FROM manager m
+JOIN manager_role_assignment mra ON m.manager_id = mra.manager_id
+JOIN manager_role mr ON mra.role_id = mr.role_id
+WHERE m.manager_id = 6
+ORDER BY mr.role_id;
+
+
+Demo 2: Search Books Using View and User Input
+
+Java:
+1. In Manager Menu, select Search books by category or keyword.
+2. Enter a keyword such as Clean.
+3. Press Enter to skip category, or enter a category such as IT/CS.
+
+Explanation:
+This menu uses user input, PreparedStatement, and the v_product_catalog view.
+The query also joins the view with book_category, so the SQL statement itself contains both a view and a join.
+
+Requirement:
+This satisfies a select query using user input, join, and view.
+
+
+Demo 3: Update Product Price Transaction
+
+Java:
+1. Select Update product price.
+2. Example:
+   Product ID: 101
+   New price: 17000
+
+MySQL check:
+SELECT product_id, product_name, unit_price
+FROM product
+WHERE product_id = 101;
+
+SELECT price_history_id, product_id, unit_price, start_date, end_date
+FROM product_price_history
+WHERE product_id = 101
+ORDER BY start_date;
+
+Explanation:
+When the product price changes, the current product price is updated.
+The previous price history row is closed by setting end_date, and a new price history row is inserted.
+These operations are handled in one transaction.
+
+Requirement:
+This supports REQ13, preserving past product prices and allowing sales analysis before and after price changes.
+
+
+Demo 4: Analyze Sales Before and After Product Price Change
+
+Java:
+1. Select Analyze sales before/after product price changes.
+2. Enter Product ID: 101.
+
+Explanation:
+This query uses aggregation and GROUP BY to compare sales before and after a product price change.
+
+Requirement:
+This satisfies an aggregation and GROUP BY select query.
+
+
+Demo 5: Customer Login and Customer Analysis
+
+Java:
+1. Select Customer Login.
+2. Login with:
+   email: linusT@linux.com
+   password: linux4u
+3. Show these customer menus:
+   View my purchase history
+   View purchases before/after my profile changes
+   View popular categories by age group
+
+Explanation:
+The customer_profile_history table tracks changes in city and membership level.
+The sales table stores profile_id and age_at_sale, so the system can analyze purchases based on the customer profile at the time of sale.
+
+Requirement:
+This supports REQ14, customer demographic change analysis.
+
+
+5. Current Menu Structure
+
+Main Menu:
+1. Customer Login
+2. Register new customer
+3. Manager Login
+0. Exit
+
+Customer Menu:
+1. Search books by category or keyword
+2. Add book to market basket
+3. Remove book from market basket
+4. Purchase books in market basket
+5. View my purchase history
+6. View purchases before/after my profile changes
+7. View popular categories by age group
+8. View my profile information
+9. Update my profile information
+10. Write book review
+11. Delete my review
+0. Logout
+
+Manager Menu:
+1. Search books by category or keyword
+2. Update product price
+3. Analyze sales before/after product price changes
+4. View product total sales summary
+5. View sales analysis summary
+6. View inventory status
+7. Update stock quantity
+8. Manage manager roles
+9. Register new manager
+10. Dismiss manager
+0. Logout
+
+
+6. Requirement Coverage Notes
+
+REQ5 - 2 insert menus:
+- Register new customer inserts into customer.
+- Add book to market basket inserts into market_basket.
+- Write book review inserts into book_review.
+- Register new manager inserts into manager and manager_role_assignment.
+
+REQ6 - 2 select menus with user input, join, and view:
+- Search books by category or keyword uses user input, v_product_catalog, and a JOIN with book_category.
+- View my purchase history uses customer_id, v_customer_purchase_history, and JOINs with sales/product.
+
+REQ7 - 2 select menus with user input, aggregation, and GROUP BY:
+- Analyze sales before/after product price changes uses product_id, aggregation, and GROUP BY.
+- View purchases before/after my profile changes uses customer_id, aggregation, and GROUP BY.
+
+REQ8 - 2 update menus:
+- Update product price updates product and product_price_history.
+- Update stock quantity updates product.
+- Update my profile information updates customer and customer_profile_history.
+
+REQ9 - 2 delete menus:
+- Remove book from market basket deletes from market_basket.
+- Delete my review deletes from book_review.
+- Dismiss manager deletes from manager_role_assignment and manager.
+
+
+7. Closing
+
+In summary, our system satisfies the project requirements by providing insert, select, update, and delete menus, using views, joins, aggregation, GROUP BY, indexes, PreparedStatement, and transactions.
+The schema also supports historical product price tracking and customer demographic change analysis.
