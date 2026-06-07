@@ -1,6 +1,7 @@
 package model;
 import java.time.LocalDateTime;
 
+// [REQ14][REQ17] Model class representing customer demographic/profile history.
 public class CustomerProfileHistory {
     private int profileId;
     private int customerId;
@@ -9,8 +10,10 @@ public class CustomerProfileHistory {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
+    // [REQ17] Default constructor used when creating model objects manually.
     public CustomerProfileHistory() {}
 
+    // [REQ14][REQ17] Full constructor maps profile history columns to Java fields.
     public CustomerProfileHistory(int profileId, int customerId, String city,
                                   String membershipLevel, LocalDateTime startDate,
                                   LocalDateTime endDate) {
@@ -22,6 +25,7 @@ public class CustomerProfileHistory {
         this.endDate = endDate;
     }
 
+    // [REQ17] Standard getters and setters expose profile history fields.
     public int getProfileId() {
         return profileId;
     }

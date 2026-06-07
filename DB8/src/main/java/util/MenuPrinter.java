@@ -7,6 +7,7 @@ public class MenuPrinter {
     private MenuPrinter() {
     }
 
+    // [REQ15] Prints the main text-based application menu.
     public static void printMainMenu() {
         System.out.println();
         System.out.println("===== Online Book Store =====");
@@ -16,6 +17,7 @@ public class MenuPrinter {
         System.out.println("0. Exit");
     }
 
+    // [REQ15] Prints the customer text-based menu.
     public static void printCustomerMenu() {
         System.out.println();
         System.out.println("===== Customer Menu =====");
@@ -33,10 +35,12 @@ public class MenuPrinter {
         System.out.println("0. Logout");
     }
 
+    // [REQ15] Backward-compatible overload for a single manager role.
     public static void printManagerMenu(String roleName) {
         printManagerMenu(Set.of(roleName));
     }
 
+    // [REQ15] Prints manager menu items and MASTER-only account management options.
     public static void printManagerMenu(Set<String> roleNames) {
         System.out.println();
         System.out.println("===== Manager Menu (" + String.join(", ", roleNames) + ") =====");
@@ -55,6 +59,7 @@ public class MenuPrinter {
         System.out.println("0. Logout");
     }
 
+    // [REQ15] Prints a fallback manager menu when role information is unavailable.
     public static void printManagerMenu() {
         printManagerMenu("UNKNOWN");
     }

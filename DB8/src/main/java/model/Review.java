@@ -1,8 +1,8 @@
 package model;
 import java.time.LocalDate;
 
+// [REQ17] Model class representing one book_review row.
 public class Review {
-    //TODO: Review entity fields + getter/setter
     private int reviewId;
     private int customerId;
     private int productId;
@@ -10,8 +10,10 @@ public class Review {
     private String reviewText;
     private LocalDate reviewDate;
 
+    // [REQ17] Default constructor used when creating review objects manually.
     public Review() {}
 
+    // [REQ17] Full constructor maps review table columns to Java fields.
     public Review(int reviewId, int customerId, int productId,
                   int rating, String reviewText, LocalDate reviewDate) {
         this.reviewId = reviewId;
@@ -22,6 +24,7 @@ public class Review {
         this.reviewDate = reviewDate;
     }
 
+    // [REQ17] Standard getters and setters expose review fields.
     public int getReviewId() {
         return reviewId;
     }

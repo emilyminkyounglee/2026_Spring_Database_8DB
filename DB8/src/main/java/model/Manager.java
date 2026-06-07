@@ -4,6 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringJoiner;
 
+// [REQ17] Model class representing a manager account and its assigned roles.
 public class Manager {
     private int managerId;
     private String managerName;
@@ -11,9 +12,11 @@ public class Manager {
     private String password;
     private Set<String> roleNames = new LinkedHashSet<>();
 
+    // [REQ17] Default constructor used when creating manager objects manually.
     public Manager() {
     }
 
+    // [REQ17] Constructor maps manager table columns to Java fields.
     public Manager(int managerId, String managerName, String email, String password) {
         this.managerId = managerId;
         this.managerName = managerName;
@@ -21,6 +24,7 @@ public class Manager {
         this.password = password;
     }
 
+    // [REQ17] Standard getters and setters expose manager fields and role assignments.
     public int getManagerId() {
         return managerId;
     }
@@ -65,6 +69,7 @@ public class Manager {
         roleNames.add(roleName);
     }
 
+    // [REQ15] Checks role-based access permissions in ManagerMenu.
     public boolean hasRole(String roleName) {
         return roleNames.contains(roleName);
     }
@@ -78,6 +83,7 @@ public class Manager {
         this.roleNames.add(roleName);
     }
 
+    // [REQ15] Returns manager roles as readable text for the console UI.
     public String getRoleSummary() {
         StringJoiner joiner = new StringJoiner(", ");
         roleNames.forEach(joiner::add);

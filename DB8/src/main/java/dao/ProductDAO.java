@@ -8,6 +8,7 @@ import java.util.List;
 
 public class ProductDAO {
 
+    // [REQ6][REQ10] Searches books using user input, v_product_catalog, and a category join.
     public List<Product> searchBooks(Connection conn, String keyword, String category) throws SQLException {
         String sql;
         if (category == null || category.isBlank()){
@@ -40,6 +41,7 @@ public class ProductDAO {
         }
 
         List<Product> result = new ArrayList<>();
+        // [REQ10] Keyword and category inputs are bound through PreparedStatement.
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             if (category == null || category.isBlank()) {
                 ps.setString(1, "%" + keyword + "%");
@@ -65,8 +67,10 @@ public class ProductDAO {
         return result;
     }
 
+    // [REQ10] Checks product existence with a bound product id.
     public boolean existsById(Connection conn, int productId) throws SQLException {
         String sql = "SELECT 1 FROM product WHERE product_id = ?";
+        // [REQ10] Product id is passed as a bind variable.
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -75,6 +79,7 @@ public class ProductDAO {
         }
     }
 
+    // [REQ8][REQ13] Closes the current active price history row before inserting a new price.
     public void closeCurrentPriceHistory(Connection conn, int productId) throws SQLException {
         String sql = """
                 UPDATE product_price_history
@@ -82,18 +87,21 @@ public class ProductDAO {
                 WHERE product_id = ?
                 AND end_date IS NULL
                 """;
+        // [REQ10] Product id is safely bound in the update query.
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.executeUpdate();
         }
     }
 
+    // [REQ5][REQ13] Inserts a new product_price_history row for the updated price.
     public void insertPriceHistory(Connection conn, int productId, BigDecimal newPrice) throws SQLException {
         String sql = """
                 INSERT INTO product_price_history
                     (product_id, unit_price, start_date, end_date)
                 VALUES (?, ?, NOW(), NULL)
                 """;
+        // [REQ10] Product id and new price are bound through PreparedStatement.
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.setBigDecimal(2, newPrice);
@@ -101,12 +109,14 @@ public class ProductDAO {
         }
     }
 
+    // [REQ8][REQ13] Updates the current price stored in product.
     public boolean updateProductPrice(Connection conn, int productId, BigDecimal newPrice) throws SQLException {
         String sql = """
                 UPDATE product
                 SET unit_price = ?
                 WHERE product_id = ?
                 """;
+        // [REQ10] New price and product id are bound through PreparedStatement.
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setBigDecimal(1, newPrice);
             ps.setInt(2, productId);
@@ -114,12 +124,14 @@ public class ProductDAO {
         }
     }
 
+    // [REQ8] Adds inventory quantity for an existing product.
     public boolean addStock(Connection conn, int productId, int quantity) throws SQLException {
         String sql = """
                 UPDATE product
                 SET stock_quantity = stock_quantity + ?
                 WHERE product_id = ?
                 """;
+        // [REQ10] Quantity and product id are bound through PreparedStatement.
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, quantity);
             ps.setInt(2, productId);
@@ -127,7 +139,7 @@ public class ProductDAO {
         }
     }
 
-    // 가격 변경 전후 매출 분석
+    // [REQ7][REQ13] Aggregates sales before and after product price changes.
     public void analyzePriceChangeSales(Connection conn, int productId) throws SQLException {
         String sql = """
                 SELECT
@@ -145,6 +157,7 @@ public class ProductDAO {
                 GROUP BY pph.price_history_id, pph.unit_price, pph.start_date, pph.end_date
                 ORDER BY pph.start_date
                 """;
+        // [REQ10] Product id from user input is bound to the analysis query.
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -165,7 +178,7 @@ public class ProductDAO {
         }
     }
 
-    // 새 책 추가
+    // [REQ5] Inserts a new book from manager-entered product information.
     public void insertBook(Connection conn, int productId, int categoryId, String productName,
                            String author, String publisher,
                            BigDecimal unitPrice, int stockQuantity) throws SQLException {
@@ -174,6 +187,7 @@ public class ProductDAO {
                     (product_id, category_id, product_name, author, publisher, unit_price, stock_quantity)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
+        // [REQ10] All product fields are bound through PreparedStatement.
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.setInt(2, categoryId);

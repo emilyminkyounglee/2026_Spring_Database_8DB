@@ -24,16 +24,15 @@ public class CustomerMenu {
 
     private int currentCustomerId;
 
-    //TODO: Print customer menu
+    // [REQ15] Runs the text-based customer menu after a successful customer login.
     public void run(int customerId) {
         this.currentCustomerId = customerId;
         while (true) {
             MenuPrinter.printCustomerMenu();
-            //TODO: Get user menu input
+            // [REQ15] Reads the user's menu selection from the console.
             int choice = InputUtil.readInt("Select an option: ");
 
             switch (choice) {
-                //TODO: Return to main menu
                 case 0 -> {
                     System.out.println("Logged out.");
                     return;
@@ -49,12 +48,12 @@ public class CustomerMenu {
                 case 9 -> updateProfile();
                 case 10 -> writeReview();
                 case 11 -> deleteReview();
-                //TODO: Handle invaild menu input
                 default -> System.out.println("Invalid option. Please try again.");
             }
         }
     }
 
+    // [REQ6][REQ10] Uses user input to search books through a DAO query using a view and join.
     private void searchBooks() {
         try (Connection conn = DBConnection.getConnection()) {
             String keyword = InputUtil.readStringOrEmpty("Keyword (title/author, Enter to skip): ");
@@ -74,6 +73,7 @@ public class CustomerMenu {
         }
     }
 
+    // [REQ14] Shows the logged-in customer's current information and profile history.
     private void viewMyProfile() {
         try (Connection conn = DBConnection.getConnection()) {
             customerDAO.viewCustomerProfile(conn, currentCustomerId);
@@ -82,6 +82,7 @@ public class CustomerMenu {
         }
     }
 
+    // [REQ8][REQ12][REQ14] Updates customer profile history through the service transaction.
     private void updateProfile() {
         String city = InputUtil.readString("New city: ");
         String membershipLevel = InputUtil.readString("New membership level: ");
@@ -99,7 +100,7 @@ public class CustomerMenu {
         }
     }
 
-    //TODO: Call BasketDAO for basket-related functions
+    // [REQ5][REQ10] Inserts or updates a basket item using customer text input.
     private void addToBasket() {
         try (Connection conn = DBConnection.getConnection()) {
             int productId = InputUtil.readInt("Product ID: ");
@@ -111,6 +112,7 @@ public class CustomerMenu {
         }
     }
 
+    // [REQ9][REQ10] Deletes an item from the logged-in customer's market basket.
     private void removeFromBasket() {
         try (Connection conn = DBConnection.getConnection()) {
             List<Basket> basket = basketDAO.findByCustomer(conn, currentCustomerId);
@@ -130,6 +132,7 @@ public class CustomerMenu {
         }
     }
 
+    // [REQ5][REQ8][REQ12][REQ13][REQ14] Processes purchase-related inserts and updates in one transaction.
     private void purchase() {
         try (Connection conn = DBConnection.getConnection()) {
             List<SalesDAO.PurchaseItem> items = salesDAO.findPurchaseItems(conn, currentCustomerId);
@@ -148,7 +151,7 @@ public class CustomerMenu {
             conn.setAutoCommit(false);
             try {
                 var totalAmount = salesDAO.calculateTotalAmount(items);
-                //TODO: Call SalesDAO for purchase transaction
+                // [REQ12] All purchase steps are committed together or rolled back together.
                 int salesId = salesDAO.insertSale(conn, currentCustomerId, totalAmount);
                 salesDAO.insertSalesDetails(conn, salesId, items);
                 salesDAO.upsertTotalSales(conn, items);
@@ -167,12 +170,12 @@ public class CustomerMenu {
         }
     }
 
-    //TODO: Call ReviewDAO for review functions
+    // [REQ5][REQ10] Inserts a review after checking that the customer purchased the book.
     private void writeReview() {
         try (Connection conn = DBConnection.getConnection()) {
             int productId = InputUtil.readInt("Product ID: ");
 
-            // 구매 여부 확인
+            // [REQ10] Purchase validation uses PreparedStatement in ReviewDAO.
             if (!reviewDAO.checkPurchaseBeforeReview(conn, currentCustomerId, productId)) {
                 System.out.println("You must purchase this book before writing a review.");
                 return;
@@ -186,6 +189,7 @@ public class CustomerMenu {
         }
     }
 
+    // [REQ9][REQ10] Deletes only reviews owned by the logged-in customer.
     private void deleteReview() {
         try (Connection conn = DBConnection.getConnection()) {
             int reviewId = InputUtil.readInt("Review ID to delete: ");
@@ -195,7 +199,7 @@ public class CustomerMenu {
         }
     }
 
-    //TODO: Call AnalysisDAO for analysis queries
+    // [REQ6] Displays purchase history using a user-specific query with a view and joins.
     private void viewPurchaseHistory() {
         try (Connection conn = DBConnection.getConnection()) {
             analysisService.showMyPurchaseHistory(conn, currentCustomerId);
@@ -204,6 +208,7 @@ public class CustomerMenu {
         }
     }
 
+    // [REQ7][REQ14] Shows aggregated sales before and after customer profile changes.
     private void viewProfileChangeAnalysis() {
         try (Connection conn = DBConnection.getConnection()) {
             analysisService.showPurchasesAroundProfileChange(conn, currentCustomerId);
@@ -212,6 +217,7 @@ public class CustomerMenu {
         }
     }
 
+    // [REQ7] Shows aggregated popular categories grouped by customer age group.
     private void viewPopularCategories() {
         try (Connection conn = DBConnection.getConnection()) {
             analysisService.showPopularCategoriesByAgeGroup(conn);

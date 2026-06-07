@@ -21,14 +21,13 @@ public class ManagerMenu {
     private final ProductDAO productDAO = new ProductDAO();
     private final AnalysisService analysisService = new AnalysisService();
 
-    //TODO: Print manager menu
+    // [REQ15] Runs the text-based manager menu with role-based access control.
     public void run(Manager manager){
         while (true) {
             MenuPrinter.printManagerMenu(manager.getRoleNames());
-            //TODO: Get user menu input
+            // [REQ15] Reads the manager's menu selection from the console.
             int choice = InputUtil.readInt("Select an option: ");
 
-            //TODO: Return to main menu
             if (choice == 0) {
                 System.out.println("Manager logged out.");
                 return;
@@ -60,16 +59,17 @@ public class ManagerMenu {
                 case 5 -> viewSalesAnalysisSummary();
                 case 6 -> viewInventoryStatus();
                 case 7 -> addStock();
-                //TODO: Handle invalid menu input
                 default -> System.out.println("Invalid option.");
             }
         }
     }
 
+    // [REQ15] Prevents manager menu access when manager login has not been completed.
     public void run(){
         System.out.println("Manager login is required.");
     }
 
+    // [REQ15] Checks which menus are visible to each manager role.
     private boolean isAllowed(Manager manager, int choice) {
         if (manager.hasRole("MASTER")) {
             return choice >= 1 && choice <= 10;
@@ -101,6 +101,7 @@ public class ManagerMenu {
         return false;
     }
 
+    // [REQ5][REQ12] MASTER can register a new manager and assign the initial role together.
     private void registerManager() {
         int managerId = InputUtil.readInt("New manager ID: ");
         String managerName = InputUtil.readString("Manager name: ");
@@ -118,6 +119,7 @@ public class ManagerMenu {
         }
     }
 
+    // [REQ9][REQ12] MASTER can dismiss a manager after deleting role assignments in a transaction.
     private void dismissManager(int currentManagerId) {
         int managerId = InputUtil.readInt("Target manager ID to dismiss: ");
         if (managerId == currentManagerId) {
@@ -149,6 +151,7 @@ public class ManagerMenu {
         }
     }
 
+    // [REQ8][REQ10] MASTER can assign or remove manager roles based on user input.
     private void manageManagerRoles() {
         int managerId = InputUtil.readInt("Target manager ID: ");
         Manager targetManager = managerService.findManagerById(managerId);
@@ -184,6 +187,7 @@ public class ManagerMenu {
         }
     }
 
+    // [REQ15] Prints role ids so the MASTER can choose a role during role management.
     private void printRoleOptions() {
         System.out.println("1. MASTER");
         System.out.println("2. SALES_ANALYSIS");
@@ -197,7 +201,7 @@ public class ManagerMenu {
         System.out.println("10. SUPPORT_MANAGER");
     }
 
-    //TODO: Call ProductDAO for book search and price updates
+    // [REQ6][REQ10] Searches books by user input through a view and join in ProductDAO.
     private void searchBooks() {
         try (Connection conn = DBConnection.getConnection()) {
             String keyword = InputUtil.readString("Keyword (title): ");
@@ -216,6 +220,7 @@ public class ManagerMenu {
         }
     }
 
+    // [REQ8][REQ12][REQ13] Updates product price and price history in one transaction.
     private void updateProductPrice() {
         int productId = InputUtil.readInt("Product ID: ");
         String priceStr = InputUtil.readString("New price: ");
@@ -227,7 +232,7 @@ public class ManagerMenu {
                 return;
             }
 
-            //TODO: Use transaction for product price update
+            // [REQ12] Price history and current product price are committed together.
             conn.setAutoCommit(false);
             try {
                 productDAO.closeCurrentPriceHistory(conn, productId);
@@ -246,6 +251,7 @@ public class ManagerMenu {
         }
     }
 
+    // [REQ11] Displays current inventory using product/category data.
     private void viewInventoryStatus() {
         try (Connection conn = DBConnection.getConnection()) {
             var result = productDAO.searchBooks(conn, "", "");
@@ -262,6 +268,7 @@ public class ManagerMenu {
         }
     }
 
+    // [REQ8][REQ10] Updates stock quantity from manager input.
     private void addStock() {
         int productId = InputUtil.readInt("Product ID: ");
         int quantity = InputUtil.readInt("Quantity to add: ");
@@ -274,7 +281,7 @@ public class ManagerMenu {
         }
     }
 
-    //TODO: Call AnalysisDAO for sales analysis quires
+    // [REQ7][REQ13] Shows aggregated sales before and after product price changes.
     private void analyzePriceChange() {
         int productId = InputUtil.readInt("Product ID: ");
         try (Connection conn = DBConnection.getConnection()) {
@@ -284,6 +291,7 @@ public class ManagerMenu {
         }
     }
 
+    // [REQ7] Displays aggregated product sales summary.
     private void viewProductSalesSummary() {
         try (Connection conn = DBConnection.getConnection()) {
             analysisService.showProductTotalSalesSummary(conn);
@@ -292,6 +300,7 @@ public class ManagerMenu {
         }
     }
 
+    // [REQ7] Displays manager-side sales analysis in a text table.
     private void viewSalesAnalysisSummary() {
         try (Connection conn = DBConnection.getConnection()) {
             analysisService.showPopularCategoriesByAgeGroup(conn);

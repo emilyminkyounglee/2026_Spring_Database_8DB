@@ -10,21 +10,25 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class SalesService {
+    // [REQ17] Service layer coordinates basket and sales operations.
     private final BasketDAO basketDAO = new BasketDAO();
     private final SalesDAO salesDAO = new SalesDAO();
 
+    // [REQ5][REQ10] Adds a customer-selected product to the market basket.
     public void addBookToBasket(int customerId, int productId, int quantity) throws SQLException {
         try (Connection conn = DBConnection.getConnection()) {
             basketDAO.addBook(conn, customerId, productId, quantity);
         }
     }
 
+    // [REQ9][REQ10] Removes a customer-selected product from the market basket.
     public boolean removeBookFromBasket(int customerId, int productId) throws SQLException {
         try (Connection conn = DBConnection.getConnection()) {
             return basketDAO.removeBook(conn, customerId, productId);
         }
     }
 
+    // [REQ5][REQ8][REQ12][REQ13][REQ14] Purchases the basket with all sale updates in one transaction.
     public int purchaseBasket(int customerId) throws SQLException {
         try (Connection conn = DBConnection.getConnection()) {
             boolean originalAutoCommit = conn.getAutoCommit();

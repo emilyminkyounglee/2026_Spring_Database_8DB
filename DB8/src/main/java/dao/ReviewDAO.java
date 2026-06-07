@@ -2,7 +2,7 @@ package dao;
 import java.sql.*;
 
 public class ReviewDAO {
-    //TODO: Write book review
+    // [REQ5][REQ10] Inserts a book review from user-entered rating and review text.
     public void writeReview(Connection conn,
                             int customerId,
                             int productId,
@@ -18,6 +18,7 @@ public class ReviewDAO {
                 VALUES (?, ?, ?, ?, CURDATE())
                 """;
 
+        // [REQ10] Review values are bound through PreparedStatement.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, customerId);
             pstmt.setInt(2, productId);
@@ -29,7 +30,7 @@ public class ReviewDAO {
         }
     }
 
-    //TODO: Delete my review
+    // [REQ9][REQ10] Deletes a review only if it belongs to the logged-in customer.
     public void deleteReview(Connection conn,
                              int reviewId,
                              int customerId) throws SQLException {
@@ -39,6 +40,7 @@ public class ReviewDAO {
                 AND customer_id = ?
                 """;
 
+        // [REQ10] Review id and customer id are bound to the delete query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, reviewId);
             pstmt.setInt(2, customerId);
@@ -53,7 +55,7 @@ public class ReviewDAO {
         }
     }
 
-    //TODO: View reviews for a book
+    // [REQ10] Retrieves reviews for a selected book.
     public void viewReviewsForBook(Connection conn,
                                    int productId) throws SQLException {
         String sql = """
@@ -67,6 +69,7 @@ public class ReviewDAO {
                 ORDER BY br.review_date DESC
                 """;
 
+        // [REQ10] Product id is bound to the SELECT query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, productId);
 
@@ -92,7 +95,7 @@ public class ReviewDAO {
         }
     }
 
-    //TODO: Check whether customer purchased the book before the review
+    // [REQ10] Checks purchase history before allowing a customer to write a review.
     public boolean checkPurchaseBeforeReview(Connection conn,
                                              int customerId,
                                              int productId) throws SQLException {
@@ -105,6 +108,7 @@ public class ReviewDAO {
                 AND sd.product_id = ?
                 """;
 
+        // [REQ10] Customer id and product id are bound to the validation query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, customerId);
             pstmt.setInt(2, productId);

@@ -8,8 +8,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class ManagerService {
+    // [REQ17] Service layer owns manager login, role changes, and manager account transactions.
     private final ManagerDAO managerDAO = new ManagerDAO();
 
+    // [REQ10] Authenticates manager input through ManagerDAO PreparedStatement queries.
     public Manager login(String email, String password) {
         try (Connection conn = DBConnection.getConnection()) {
             return managerDAO.findByEmailAndPassword(conn, email, password);
@@ -19,6 +21,7 @@ public class ManagerService {
         }
     }
 
+    // [REQ10] Looks up a manager id from the email entered in the login menu.
     public Integer findManagerIdByEmail(String email) {
         try (Connection conn = DBConnection.getConnection()) {
             return managerDAO.findManagerIdByEmail(conn, email);
@@ -28,6 +31,7 @@ public class ManagerService {
         }
     }
 
+    // [REQ10] Loads manager details and roles by manager id.
     public Manager findManagerById(int managerId) {
         try (Connection conn = DBConnection.getConnection()) {
             return managerDAO.findById(conn, managerId);
@@ -37,6 +41,7 @@ public class ManagerService {
         }
     }
 
+    // [REQ5][REQ12] Registers a manager and assigns the initial role in one transaction.
     public boolean registerManager(int managerId, String managerName, String email,
                                    String password, int roleId) {
         try (Connection conn = DBConnection.getConnection()) {
@@ -63,6 +68,7 @@ public class ManagerService {
         }
     }
 
+    // [REQ9][REQ12] Deletes manager role assignments and the manager account in one transaction.
     public boolean dismissManager(int managerId) {
         try (Connection conn = DBConnection.getConnection()) {
             if (managerDAO.findById(conn, managerId) == null) {
@@ -88,6 +94,7 @@ public class ManagerService {
         }
     }
 
+    // [REQ8][REQ10] Adds a role to a manager using user-selected manager and role ids.
     public boolean assignManagerRole(int managerId, int roleId) {
         try (Connection conn = DBConnection.getConnection()) {
             if (!managerDAO.existsRole(conn, roleId)) {
@@ -102,6 +109,7 @@ public class ManagerService {
         }
     }
 
+    // [REQ8][REQ10] Removes a role from a manager using user-selected manager and role ids.
     public boolean removeManagerRole(int managerId, int roleId) {
         try (Connection conn = DBConnection.getConnection()) {
             if (!managerDAO.existsRole(conn, roleId)) {

@@ -7,11 +7,13 @@ import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class InputUtil {
+    // [REQ15] Shared Scanner for the text-based console interface.
     private static final Scanner scanner = new Scanner(System.in);
 
     private InputUtil() {
     }
 
+    // [REQ15] Reads a non-empty text value from the console.
     public static String readString(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -25,11 +27,13 @@ public class InputUtil {
         }
     }
 
+    // [REQ15] Reads optional text input, used when a menu allows Enter to skip.
     public static String readStringOrEmpty(String prompt) {
         System.out.print(prompt);
         return scanner.nextLine().trim();
     }
 
+    // [REQ15] Reads integer menu choices and ids from the console.
     public static int readInt(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -43,6 +47,7 @@ public class InputUtil {
         }
     }
 
+    // [REQ15] Reads decimal values such as prices from the console.
     public static BigDecimal readBigDecimal(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -56,6 +61,7 @@ public class InputUtil {
         }
     }
 
+    // [REQ15] Reads date values using yyyy-MM-dd format.
     public static Date readDate(String prompt) {
         while (true) {
             System.out.print(prompt);

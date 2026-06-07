@@ -5,7 +5,7 @@ import java.sql.*;
 import java.util.*;
 
 public class AnalysisDAO {
-    //TODO: View popular categories by age group
+    // [REQ7] Aggregates category popularity by age group using GROUP BY.
     public List<Map<String, Object>> getPopularCategoriesByAgeGroup(Connection conn) throws SQLException {
         String sql = """
             SELECT age_group, category_name, order_count, total_quantity, total_revenue
@@ -53,6 +53,7 @@ public class AnalysisDAO {
 
         List<Map<String, Object>> result = new ArrayList<>();
 
+        // [REQ10] PreparedStatement is used consistently for query execution.
         try (PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
@@ -68,7 +69,7 @@ public class AnalysisDAO {
         return result;
     }
 
-    //TODO: View product total sales summary
+    // [REQ7] Shows aggregated total sales by product and category.
     public List<Map<String, Object>> getProductTotalSalesSummary(Connection conn) throws SQLException {
         String sql = """
                 SELECT
@@ -87,6 +88,7 @@ public class AnalysisDAO {
 
         List<Map<String, Object>> result = new ArrayList<>();
 
+        // [REQ10] PreparedStatement is used consistently for query execution.
         try (PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
@@ -104,7 +106,7 @@ public class AnalysisDAO {
         return result;
     }
 
-    //TODO: Analyze sales before/after product price changes
+    // [REQ7][REQ10][REQ13] Aggregates sales for each product price history period.
     public List<Map<String, Object>> analyzeSalesAroundPriceChange(Connection conn, int productId) throws SQLException {
         String sql = """
                 SELECT
@@ -130,6 +132,7 @@ public class AnalysisDAO {
 
         List<Map<String, Object>> result = new ArrayList<>();
 
+        // [REQ10] The product id from user input is bound to the analysis query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, productId);
 
@@ -153,7 +156,7 @@ public class AnalysisDAO {
         return result;
     }
 
-    //TODO: Analyze purchases before/after customer profile changes
+    // [REQ7][REQ10][REQ14] Aggregates customer sales by profile history periods.
     public List<Map<String, Object>> analyzePurchasesAroundProfileChange(Connection conn, int customerId) throws SQLException {
         String sql = """
                 SELECT
@@ -175,6 +178,7 @@ public class AnalysisDAO {
 
         List<Map<String, Object>> result = new ArrayList<>();
 
+        // [REQ10] The logged-in customer id is bound to the demographic analysis query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, customerId);
 
@@ -199,7 +203,7 @@ public class AnalysisDAO {
         return result;
     }
 
-    //TODO: View my purchase history (v_customer_purchase_history)
+    // [REQ6][REQ10] Uses a view, joins, and customer input to retrieve purchase history.
     public List<Map<String, Object>> getCustomerPurchaseHistory(Connection conn, int customerId) throws SQLException {
         String sql = """
                 SELECT
@@ -223,6 +227,7 @@ public class AnalysisDAO {
 
         List<Map<String, Object>> result = new ArrayList<>();
 
+        // [REQ10] The logged-in customer id is bound to the view-based SELECT query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, customerId);
 
@@ -247,7 +252,7 @@ public class AnalysisDAO {
         return result;
     }
 
-    //TODO: Print query results in text table format
+    // [REQ15] Prints query results as a text-based table for the console UI.
     public void printResultTable(List<Map<String, Object>> rows) {
         if (rows == null || rows.isEmpty()) {
             System.out.println("  (No results found)");
@@ -256,7 +261,7 @@ public class AnalysisDAO {
 
         List<String> columns = new ArrayList<>(rows.get(0).keySet());
 
-        // 컬럼별 최대 출력 너비 계산 (헤더 포함)
+        // [REQ15] Calculates column widths so text-table output stays readable.
         Map<String, Integer> widths = new LinkedHashMap<>();
         for (String col : columns) {
             widths.put(col, col.length());
@@ -268,11 +273,11 @@ public class AnalysisDAO {
             }
         }
 
-        // 구분선
+        // [REQ15] Builds the divider for the text-table output.
         StringBuilder divider = new StringBuilder("+");
         for (String col : columns) divider.append("-".repeat(widths.get(col) + 2)).append("+");
 
-        // 헤더
+        // [REQ15] Prints the table header.
         System.out.println(divider);
         StringBuilder header = new StringBuilder("|");
         for (String col : columns)
@@ -280,7 +285,7 @@ public class AnalysisDAO {
         System.out.println(header);
         System.out.println(divider);
 
-        // 데이터 행
+        // [REQ15] Prints each result row.
         for (Map<String, Object> row : rows) {
             StringBuilder line = new StringBuilder("|");
             for (String col : columns)
@@ -291,7 +296,7 @@ public class AnalysisDAO {
         System.out.printf("  Total %d books%n", rows.size());
     }
 
-    // NULL 및 BigDecimal 포맷 처리
+    // [REQ15] Formats NULL and BigDecimal values for text-table output.
     private String formatValue(Object val) {
         if (val == null) return "NULL";
         if (val instanceof BigDecimal bd) return String.format("%.2f", bd);

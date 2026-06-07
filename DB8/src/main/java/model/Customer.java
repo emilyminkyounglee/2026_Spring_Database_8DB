@@ -2,8 +2,8 @@ package model;
 
 import java.time.LocalDate;
 
+// [REQ17] Model class representing one customer row.
 public class Customer {
-    //TODO: Customer entity fields + getter/setter
     private int customerId;
     private String firstName;
     private String lastName;
@@ -13,8 +13,10 @@ public class Customer {
     private LocalDate birthDate;
     private LocalDate joinDate;
 
+    // [REQ17] Default constructor used by DAO or menu code when needed.
     public Customer() {}
 
+    // [REQ17] Full constructor maps customer table columns to Java fields.
     public Customer(int customerId, String firstName, String lastName,
                     String email, String password, String phone, LocalDate birthDate, LocalDate joinDate) {
         this.customerId = customerId;
@@ -27,6 +29,7 @@ public class Customer {
         this.joinDate = joinDate;
     }
 
+    // [REQ17] Standard getters and setters expose customer fields to service/menu code.
     public int getCustomerId() {
         return customerId;
     }

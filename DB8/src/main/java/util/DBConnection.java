@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 /**
+ * [REQ17] Central JDBC connection utility for the Java application.
+ *
  * MySQL connection helper.
  *
  * Connections are created here only — DAOs receive a Connection as their first
@@ -46,10 +48,11 @@ public class DBConnection {
     }
 
     private DBConnection() {
-        // utility class
+        // [REQ17] Utility class; instances are not needed.
     }
 
     /**
+     * [REQ17]
      * Open a new MySQL connection.
      * Caller (Service layer) is responsible for commit / rollback / close.
      */
@@ -57,6 +60,7 @@ public class DBConnection {
         return DriverManager.getConnection(url, user, password);
     }
 
+    // [REQ17] Validates required database connection properties at startup.
     private static String required(Properties props, String key) {
         String value = props.getProperty(key);
         if (value == null || value.isBlank()) {

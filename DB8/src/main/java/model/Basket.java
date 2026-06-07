@@ -3,6 +3,7 @@ package model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+// [REQ17] Model class representing one market_basket row.
 public class Basket {
     private int basketId;
     private int customerId;
@@ -11,9 +12,11 @@ public class Basket {
     private LocalDateTime addedAt;
     private BigDecimal unitPriceAtAdded;
 
+    // [REQ17] Default constructor used when creating model objects manually.
     public Basket() {
     }
 
+    // [REQ17] Full constructor maps database columns to Java fields.
     public Basket(int basketId, int customerId, int productId, int quantity,
                   LocalDateTime addedAt, BigDecimal unitPriceAtAdded) {
         this.basketId = basketId;
@@ -24,6 +27,7 @@ public class Basket {
         this.unitPriceAtAdded = unitPriceAtAdded;
     }
 
+    // [REQ17] Standard getters and setters expose market_basket fields to DAO/menu code.
     public int getBasketId() {
         return basketId;
     }

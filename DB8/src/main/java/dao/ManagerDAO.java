@@ -9,6 +9,7 @@ import java.sql.SQLException;
 
 public class ManagerDAO {
 
+    // [REQ10] Authenticates a manager with email/password bind variables.
     public Manager findByEmailAndPassword(Connection conn,
                                           String email,
                                           String password) throws SQLException {
@@ -22,6 +23,7 @@ public class ManagerDAO {
                 AND m.password = ?
                 """;
 
+        // [REQ10] Manager email and password are bound through PreparedStatement.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, email);
             pstmt.setString(2, password);
@@ -37,6 +39,7 @@ public class ManagerDAO {
         }
     }
 
+    // [REQ10] Checks whether a manager email exists before password attempts.
     public Integer findManagerIdByEmail(Connection conn, String email) throws SQLException {
         String sql = """
                 SELECT manager_id
@@ -44,6 +47,7 @@ public class ManagerDAO {
                 WHERE email = ?
                 """;
 
+        // [REQ10] Manager email is bound to the SELECT query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, email);
 
@@ -56,6 +60,7 @@ public class ManagerDAO {
         }
     }
 
+    // [REQ10] Loads manager account information by manager id.
     public Manager findById(Connection conn, int managerId) throws SQLException {
         String sql = """
                 SELECT manager_id,
@@ -66,6 +71,7 @@ public class ManagerDAO {
                 WHERE manager_id = ?
                 """;
 
+        // [REQ10] Manager id is bound to the SELECT query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, managerId);
 
@@ -80,6 +86,7 @@ public class ManagerDAO {
         }
     }
 
+    // [REQ5][REQ10] Inserts a new manager account from MASTER-entered data.
     public boolean insertManager(Connection conn, int managerId, String managerName,
                                  String email, String password) throws SQLException {
         String sql = """
@@ -88,6 +95,7 @@ public class ManagerDAO {
                 VALUES (?, ?, ?, ?)
                 """;
 
+        // [REQ10] Manager fields are bound through PreparedStatement.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, managerId);
             pstmt.setString(2, managerName);
@@ -98,6 +106,7 @@ public class ManagerDAO {
         }
     }
 
+    // [REQ10] Validates that the selected role id exists.
     public boolean existsRole(Connection conn, int roleId) throws SQLException {
         String sql = """
                 SELECT 1
@@ -105,6 +114,7 @@ public class ManagerDAO {
                 WHERE role_id = ?
                 """;
 
+        // [REQ10] Role id is bound to the validation query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, roleId);
 
@@ -114,6 +124,7 @@ public class ManagerDAO {
         }
     }
 
+    // [REQ8][REQ10] Assigns a role to a manager through the bridge table.
     public boolean assignManagerRole(Connection conn, int managerId, int roleId) throws SQLException {
         String sql = """
                 INSERT IGNORE INTO manager_role_assignment
@@ -121,6 +132,7 @@ public class ManagerDAO {
                 VALUES (?, ?)
                 """;
 
+        // [REQ10] Manager id and role id are bound to the assignment query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, managerId);
             pstmt.setInt(2, roleId);
@@ -129,6 +141,7 @@ public class ManagerDAO {
         }
     }
 
+    // [REQ8][REQ10] Removes one role assignment from a manager.
     public boolean removeManagerRole(Connection conn, int managerId, int roleId) throws SQLException {
         String sql = """
                 DELETE FROM manager_role_assignment
@@ -136,6 +149,7 @@ public class ManagerDAO {
                 AND role_id = ?
                 """;
 
+        // [REQ10] Manager id and role id are bound to the delete query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, managerId);
             pstmt.setInt(2, roleId);
@@ -144,24 +158,28 @@ public class ManagerDAO {
         }
     }
 
+    // [REQ9][REQ12] Removes all role assignments before deleting a manager account.
     public void removeAllManagerRoles(Connection conn, int managerId) throws SQLException {
         String sql = """
                 DELETE FROM manager_role_assignment
                 WHERE manager_id = ?
                 """;
 
+        // [REQ10] Manager id is bound to the role cleanup query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, managerId);
             pstmt.executeUpdate();
         }
     }
 
+    // [REQ9][REQ10] Deletes a manager account by manager id.
     public boolean deleteManager(Connection conn, int managerId) throws SQLException {
         String sql = """
                 DELETE FROM manager
                 WHERE manager_id = ?
                 """;
 
+        // [REQ10] Manager id is bound to the delete query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, managerId);
 
@@ -169,6 +187,7 @@ public class ManagerDAO {
         }
     }
 
+    // [REQ10] Loads all roles assigned to a manager through manager_role_assignment.
     private void loadRoles(Connection conn, Manager manager) throws SQLException {
         String sql = """
                 SELECT mr.role_name
@@ -178,6 +197,7 @@ public class ManagerDAO {
                 ORDER BY mr.role_id
                 """;
 
+        // [REQ10] Manager id is bound to the role lookup query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, manager.getManagerId());
 
@@ -189,6 +209,7 @@ public class ManagerDAO {
         }
     }
 
+    // [REQ17] Converts a JDBC ResultSet row into a Manager model object.
     private Manager toManager(ResultSet rs) throws SQLException {
         return new Manager(
                 rs.getInt("manager_id"),

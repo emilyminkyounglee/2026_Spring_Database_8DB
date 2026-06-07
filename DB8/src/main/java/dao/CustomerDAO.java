@@ -2,7 +2,7 @@ package dao;
 import java.sql.*;
 
 public class CustomerDAO {
-    //TODO: Register new customer
+    // [REQ5][REQ10] Inserts a new customer using user-entered registration data.
     public void registerCustomer(Connection conn,
                                  String firstName,
                                  String lastName,
@@ -25,6 +25,7 @@ public class CustomerDAO {
                 VALUES (?, ?, ?, ?, ?, ?, CURDATE())
                 """;
 
+        // [REQ10] PreparedStatement binds user input instead of concatenating SQL strings.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, firstName);
             pstmt.setString(2, lastName);
@@ -37,6 +38,7 @@ public class CustomerDAO {
         }
     }
 
+    // [REQ10] Validates customer email and password with PreparedStatement parameters.
     public Integer findCustomerIdByEmailAndPassword(Connection conn,
                                                     String email,
                                                     String password) throws SQLException {
@@ -47,6 +49,7 @@ public class CustomerDAO {
                 AND password = ?
                 """;
 
+        // [REQ10] Email and password are passed as bind variables.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, email);
             pstmt.setString(2, password);
@@ -60,6 +63,7 @@ public class CustomerDAO {
         }
     }
 
+    // [REQ10] Checks if a customer email exists using a bind variable.
     public Integer findCustomerIdByEmail(Connection conn, String email) throws SQLException {
         String sql = """
                 SELECT customer_id
@@ -67,6 +71,7 @@ public class CustomerDAO {
                 WHERE email = ?
                 """;
 
+        // [REQ10] The email input is safely bound to the query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, email);
 
@@ -79,7 +84,7 @@ public class CustomerDAO {
         }
     }
 
-    //TODO: Find customer by customer_id
+    // [REQ10] Finds a customer by id using PreparedStatement.
     public void findCustomerById(Connection conn, int customerId) throws SQLException {
         String sql = """
                 SELECT customer_id, first_name, last_name, email, phone, birth_date, join_date
@@ -87,6 +92,7 @@ public class CustomerDAO {
                 WHERE customer_id = ?
                 """;
 
+        // [REQ10] The customer id is safely bound to the SELECT query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, customerId);
 
@@ -100,6 +106,7 @@ public class CustomerDAO {
         }
     }
 
+    // [REQ14] Displays customer demographic/profile history used for demographic sales analysis.
     public void viewCustomerProfile(Connection conn, int customerId) throws SQLException {
         String customerSql = """
                 SELECT customer_id, first_name, last_name, email, phone, birth_date, join_date
@@ -107,6 +114,7 @@ public class CustomerDAO {
                 WHERE customer_id = ?
                 """;
 
+        // [REQ10] The customer id is safely bound when retrieving basic customer data.
         try (PreparedStatement pstmt = conn.prepareStatement(customerSql)) {
             pstmt.setInt(1, customerId);
 
@@ -129,6 +137,7 @@ public class CustomerDAO {
                 ORDER BY start_date
                 """;
 
+        // [REQ10][REQ14] The same customer id is bound to retrieve profile history rows.
         try (PreparedStatement pstmt = conn.prepareStatement(profileSql)) {
             pstmt.setInt(1, customerId);
 
@@ -153,7 +162,7 @@ public class CustomerDAO {
         }
     }
 
-    //TODO: Find customer by email
+    // [REQ10] Finds customer information by email using PreparedStatement.
     public void findCustomerByEmail(Connection conn, String email) throws SQLException {
         String sql = """
                 SELECT customer_id, first_name, last_name, email, phone, birth_date, join_date
@@ -161,6 +170,7 @@ public class CustomerDAO {
                 WHERE email = ?
                 """;
 
+        // [REQ10] The email input is safely bound to the query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, email);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -173,7 +183,7 @@ public class CustomerDAO {
         }
     }
 
-    //TODO: Update customer profile
+    // [REQ8][REQ10] Updates customer profile fields using user input.
     public void updateCustomerProfile(Connection conn,
                                       int customerId,
                                       String firstName,
@@ -191,6 +201,7 @@ public class CustomerDAO {
                 WHERE customer_id = ?
                 """;
 
+        // [REQ10] Every updated field is passed through PreparedStatement bind variables.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, firstName);
             pstmt.setString(2, lastName);
@@ -209,7 +220,7 @@ public class CustomerDAO {
         }
     }
 
-    //TODO: Close current active profile history
+    // [REQ8][REQ14] Closes the active customer profile history row before inserting a new one.
     public void closeCurrentProfileHistory(Connection conn,
                                            int customerId) throws SQLException {
         String sql = """
@@ -219,13 +230,14 @@ public class CustomerDAO {
             AND end_date IS NULL
             """;
 
+        // [REQ10] The customer id is bound when updating profile history.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, customerId);
             pstmt.executeUpdate();
         }
     }
 
-    //TODO: Insert new customer profile history
+    // [REQ5][REQ14] Inserts a new profile history row for city and membership changes.
     public void insertCustomerProfileHistory(Connection conn,
                                              int customerId,
                                              String city,
@@ -236,6 +248,7 @@ public class CustomerDAO {
             VALUES (?, ?, ?, CURRENT_TIMESTAMP, NULL)
             """;
 
+        // [REQ10] Profile history values are safely bound to the INSERT statement.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, customerId);
             pstmt.setString(2, city);
@@ -245,7 +258,7 @@ public class CustomerDAO {
         }
     }
 
-    //TODO: View customer purchase history
+    // [REQ6][REQ10] Uses user input, a view, and a join to show customer purchase history.
     public void viewCustomerPurchaseHistory(Connection conn, int customerId) throws SQLException {
         String sql = """
                 SELECT s.sales_id,
@@ -261,6 +274,7 @@ public class CustomerDAO {
                 ORDER BY s.sales_timestamp DESC
                 """;
 
+        // [REQ10] The logged-in customer id is bound to the view-based SELECT query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, customerId);
 
@@ -287,7 +301,7 @@ public class CustomerDAO {
         }
     }
 
-    //TODO: Analyze purchases before/after customer profile changes
+    // [REQ7][REQ10][REQ14] Aggregates sales before and after a customer profile change date.
     public void analyzePurchasesBeforeAfterCustomerProfileChanges(Connection conn,
                                                                   int customerId,
                                                                   Date changeDate) throws SQLException {
@@ -307,6 +321,7 @@ public class CustomerDAO {
                 ORDER BY period
                 """;
 
+        // [REQ10] The change date and customer id are bound to the aggregation query.
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setDate(1, changeDate);
             pstmt.setInt(2, customerId);
@@ -332,6 +347,7 @@ public class CustomerDAO {
         }
     }
 
+    // [REQ15] Prints customer rows in the text-based interface.
     private void printCustomer(ResultSet rs) throws SQLException {
         System.out.println(
                 rs.getInt("customer_id") + " | " +

@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 public class AnalysisService {
-    //TODO: Handle sales and customer analysis logic
+    // [REQ17] Service layer formats analysis use cases before delegating SQL to AnalysisDAO.
     private final AnalysisDAO analysisDAO = new AnalysisDAO();
 
+    // [REQ6] Shows purchase history from a view-based query filtered by customer id.
     public void showMyPurchaseHistory(Connection conn, int customerId) {
         System.out.println("\n===== My Purchase History =====");
         try {
@@ -21,6 +22,7 @@ public class AnalysisService {
         }
     }
 
+    // [REQ7][REQ14] Shows grouped sales results for each customer profile history period.
     public void showPurchasesAroundProfileChange(Connection conn, int customerId) {
         System.out.println("\n===== Purchases Before/After Profile Changes =====");
         try {
@@ -35,6 +37,7 @@ public class AnalysisService {
         }
     }
 
+    // [REQ7] Shows aggregated category popularity by age group.
     public void showPopularCategoriesByAgeGroup(Connection conn) {
         System.out.println("\n===== Popular Categories by Age Group =====");
         try {
@@ -45,6 +48,7 @@ public class AnalysisService {
         }
     }
 
+    // [REQ7][REQ13] Shows sales grouped by product price history period.
     public void showSalesAroundPriceChange(Connection conn, int productId) {
         System.out.println("\n===== Sales Before/After Price Change (product_id: " + productId + ") =====");
         try {
@@ -59,6 +63,7 @@ public class AnalysisService {
         }
     }
 
+    // [REQ7] Shows total sales grouped by product and category.
     public void showProductTotalSalesSummary(Connection conn) {
         System.out.println("\n===== Product Total Sales Summary =====");
         try {

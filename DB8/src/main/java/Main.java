@@ -14,7 +14,7 @@ import java.sql.SQLException;
 public class Main {
     private static final int MAX_PASSWORD_ATTEMPTS = 3;
 
-    //TODO: Start program and connect menus/services
+    // [REQ15] Starts the text-based application and routes users to customer or manager menus.
     public static void main(String[] args) {
         testConnection();
 
@@ -40,6 +40,7 @@ public class Main {
         }
     }
 
+    // [REQ15] Handles customer login before opening the customer-only menu.
     private static void loginCustomer(CustomerService customerService, CustomerMenu customerMenu) {
         String email = InputUtil.readString("Customer email: ");
         Integer customerId = customerService.findCustomerIdByEmail(email);
@@ -65,6 +66,7 @@ public class Main {
         System.out.println("Customer login failed.");
     }
 
+    // [REQ5] Collects user text input for customer registration.
     private static void registerCustomer(CustomerService customerService) {
         String firstName = InputUtil.readString("First name: ");
         String lastName = InputUtil.readString("Last name: ");
@@ -88,6 +90,7 @@ public class Main {
         );
     }
 
+    // [REQ15] Handles manager login and passes the authenticated manager roles to ManagerMenu.
     private static void loginManager(ManagerService managerService, ManagerMenu managerMenu) {
         String email = InputUtil.readString("Manager email: ");
         Integer managerId = managerService.findManagerIdByEmail(email);
@@ -113,6 +116,7 @@ public class Main {
         System.out.println("Manager login failed.");
     }
 
+    // [REQ19] Confirms that the application can connect to the configured MySQL database.
     private static void testConnection(){
         try (Connection conn = util.DBConnection.getConnection()){
             System.out.println("Connected to database: " + conn.getCatalog());
