@@ -29,8 +29,27 @@ db.user=dbadmin
 db.password=YOUR_PASSWORD
 
 Run:
-1. Open DB8 as the Maven project in IntelliJ IDEA, or run through Maven/Java after compiling.
+Option 1. Run the submitted executable jar file:
+1. Open Terminal.
+2. If the database is accessed through the SSH tunnel, start the tunnel first:
+   ssh -fN db8-tunnel
+3. Move to the DB8 project folder:
+   cd DB8
+4. Execute the jar file:
+   java -jar target/DB8-1.0-SNAPSHOT.jar
+
+Option 2. Run from IntelliJ IDEA:
+1. Open DB8 as the Maven project in IntelliJ IDEA.
 2. Execute the Main class.
+
+Expected first output:
+Connected to database: db8_bookstore
+
+===== Online Book Store =====
+1. Customer Login
+2. Register new customer
+3. Manager Login
+0. Exit
 
 Application menus:
 - Main menu supports customer login, customer registration, manager login, and exit.

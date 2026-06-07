@@ -87,6 +87,40 @@ ssh -fN db8-tunnel
 
 ## Run Java Application
 
+### Option 1. Run Executable Jar
+
+Start the SSH tunnel first if the database is accessed through the tunnel.
+
+```bash
+ssh -fN db8-tunnel
+```
+
+Move to the project folder.
+
+```bash
+cd /Users/minkyoung_lee/Developer/dev/2026_Spring_Database_8DB/DB8
+```
+
+Execute the jar file.
+
+```bash
+java -jar target/DB8-1.0-SNAPSHOT.jar
+```
+
+Expected first output:
+
+```text
+Connected to database: db8_bookstore
+
+===== Online Book Store =====
+1. Customer Login
+2. Register new customer
+3. Manager Login
+0. Exit
+```
+
+### Option 2. Run From IntelliJ IDEA
+
 Open `DB8` as a Maven project in IntelliJ IDEA and run:
 
 ```text
