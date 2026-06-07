@@ -1,0 +1,214 @@
+digraph DB8_Conceptual_ER {
+  graph [
+    rankdir=LR,
+    splines=true,
+    overlap=false,
+    nodesep=0.55,
+    ranksep=1.05,
+    bgcolor="white",
+    pad=0.35,
+    labelloc="t",
+    label="Online Bookstore Conceptual E-R Diagram",
+    fontsize=24,
+    fontname="Helvetica"
+  ];
+
+  node [
+    fontname="Helvetica",
+    fontsize=11,
+    color="#111827",
+    penwidth=1.4
+  ];
+
+  edge [
+    fontname="Helvetica",
+    fontsize=10,
+    color="#374151",
+    penwidth=1.35,
+    arrowsize=0.6
+  ];
+
+  /* Entity sets: rectangles with underlined primary key attributes. */
+  customer [shape=box, margin=0.08, label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="2">
+      <TR><TD><B>CUSTOMER</B></TD></TR>
+      <TR><TD><U>customer_id</U></TD></TR>
+      <TR><TD>first_name</TD></TR>
+      <TR><TD>last_name</TD></TR>
+      <TR><TD>email</TD></TR>
+      <TR><TD>password</TD></TR>
+      <TR><TD>phone</TD></TR>
+      <TR><TD>birth_date</TD></TR>
+      <TR><TD>join_date</TD></TR>
+    </TABLE>
+  >];
+
+  customer_profile_history [shape=box, margin=0.08, label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="2">
+      <TR><TD><B>CUSTOMER_PROFILE_HISTORY</B></TD></TR>
+      <TR><TD><U>profile_id</U></TD></TR>
+      <TR><TD>city</TD></TR>
+      <TR><TD>membership_level</TD></TR>
+      <TR><TD>start_date</TD></TR>
+      <TR><TD>end_date</TD></TR>
+    </TABLE>
+  >];
+
+  product [shape=box, margin=0.08, label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="2">
+      <TR><TD><B>PRODUCT</B></TD></TR>
+      <TR><TD><U>product_id</U></TD></TR>
+      <TR><TD>product_name</TD></TR>
+      <TR><TD>author</TD></TR>
+      <TR><TD>publisher</TD></TR>
+      <TR><TD>unit_price</TD></TR>
+      <TR><TD>stock_quantity</TD></TR>
+    </TABLE>
+  >];
+
+  book_category [shape=box, margin=0.08, label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="2">
+      <TR><TD><B>BOOK_CATEGORY</B></TD></TR>
+      <TR><TD><U>category_id</U></TD></TR>
+      <TR><TD>category_name</TD></TR>
+      <TR><TD>description</TD></TR>
+    </TABLE>
+  >];
+
+  market_basket [shape=box, margin=0.08, label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="2">
+      <TR><TD><B>MARKET_BASKET</B></TD></TR>
+      <TR><TD><U>basket_id</U></TD></TR>
+      <TR><TD>quantity</TD></TR>
+      <TR><TD>added_at</TD></TR>
+      <TR><TD>unit_price_at_added</TD></TR>
+    </TABLE>
+  >];
+
+  sales [shape=box, margin=0.08, label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="2">
+      <TR><TD><B>SALES</B></TD></TR>
+      <TR><TD><U>sales_id</U></TD></TR>
+      <TR><TD>sales_timestamp</TD></TR>
+      <TR><TD>total_amount</TD></TR>
+      <TR><TD>age_at_sale</TD></TR>
+    </TABLE>
+  >];
+
+  sales_detail [shape=box, margin=0.08, label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="2">
+      <TR><TD><B>SALES_DETAIL</B></TD></TR>
+      <TR><TD><U>sales_detail_id</U></TD></TR>
+      <TR><TD>quantity</TD></TR>
+      <TR><TD>unit_price_at_sale</TD></TR>
+      <TR><TD>subtotal</TD></TR>
+    </TABLE>
+  >];
+
+  total_sales [shape=box, margin=0.08, label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="2">
+      <TR><TD><B>TOTAL_SALES</B></TD></TR>
+      <TR><TD><U>total_sales_id</U></TD></TR>
+      <TR><TD>total_quantity</TD></TR>
+      <TR><TD>total_revenue</TD></TR>
+    </TABLE>
+  >];
+
+  product_price_history [shape=box, margin=0.08, label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="2">
+      <TR><TD><B>PRODUCT_PRICE_HISTORY</B></TD></TR>
+      <TR><TD><U>price_history_id</U></TD></TR>
+      <TR><TD>unit_price</TD></TR>
+      <TR><TD>start_date</TD></TR>
+      <TR><TD>end_date</TD></TR>
+    </TABLE>
+  >];
+
+  book_review [shape=box, margin=0.08, label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="2">
+      <TR><TD><B>BOOK_REVIEW</B></TD></TR>
+      <TR><TD><U>review_id</U></TD></TR>
+      <TR><TD>rating</TD></TR>
+      <TR><TD>review_text</TD></TR>
+      <TR><TD>review_date</TD></TR>
+    </TABLE>
+  >];
+
+  manager [shape=box, margin=0.08, label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="2">
+      <TR><TD><B>MANAGER</B></TD></TR>
+      <TR><TD><U>manager_id</U></TD></TR>
+      <TR><TD>manager_name</TD></TR>
+      <TR><TD>email</TD></TR>
+      <TR><TD>password</TD></TR>
+    </TABLE>
+  >];
+
+  manager_role [shape=box, margin=0.08, label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="2">
+      <TR><TD><B>MANAGER_ROLE</B></TD></TR>
+      <TR><TD><U>role_id</U></TD></TR>
+      <TR><TD>role_name</TD></TR>
+      <TR><TD>description</TD></TR>
+    </TABLE>
+  >];
+
+  /* Relationship sets: diamonds, matching the lecture notation. */
+  belongs_to [shape=diamond, width=1.15, height=0.7, label="belongs_to"];
+  has_profile [shape=diamond, width=1.15, height=0.7, label="has_profile"];
+  owns_basket [shape=diamond, width=1.15, height=0.7, label="owns"];
+  contains_basket [shape=diamond, width=1.15, height=0.7, label="contains"];
+  places [shape=diamond, width=1.15, height=0.7, label="places"];
+  uses_profile [shape=diamond, width=1.15, height=0.7, label="uses_profile"];
+  includes [shape=diamond, width=1.15, height=0.7, label="includes"];
+  sold_product [shape=diamond, width=1.15, height=0.7, label="sold_product"];
+  summarized_by [shape=diamond, width=1.15, height=0.7, label="summarized_by"];
+  has_price_history [shape=diamond, width=1.15, height=0.7, label="has_price_history"];
+  writes [shape=diamond, width=1.15, height=0.7, label="writes"];
+  reviews_product [shape=diamond, width=1.15, height=0.7, label="reviews"];
+  assigned_to [shape=diamond, width=1.15, height=0.7, label="assigned_to"];
+
+  { rank=same; customer; manager; }
+  { rank=same; market_basket; sales; book_review; }
+  { rank=same; product; customer_profile_history; manager_role; }
+  { rank=same; book_category; product_price_history; total_sales; sales_detail; }
+
+  book_category -> belongs_to [label="1"];
+  belongs_to -> product [label="N"];
+
+  customer -> has_profile [label="1"];
+  has_profile -> customer_profile_history [label="N"];
+
+  customer -> owns_basket [label="1"];
+  owns_basket -> market_basket [label="N"];
+
+  product -> contains_basket [label="1"];
+  contains_basket -> market_basket [label="N"];
+
+  customer -> places [label="1"];
+  places -> sales [label="N"];
+
+  customer_profile_history -> uses_profile [label="1"];
+  uses_profile -> sales [label="N"];
+
+  sales -> includes [label="1"];
+  includes -> sales_detail [label="N"];
+
+  product -> sold_product [label="1"];
+  sold_product -> sales_detail [label="N"];
+
+  product -> summarized_by [label="1"];
+  summarized_by -> total_sales [label="1"];
+
+  product -> has_price_history [label="1"];
+  has_price_history -> product_price_history [label="N"];
+
+  customer -> writes [label="1"];
+  writes -> book_review [label="N"];
+
+  product -> reviews_product [label="1"];
+  reviews_product -> book_review [label="N"];
+
+  manager -> assigned_to [label="M"];
+  assigned_to -> manager_role [label="N"];
+}
