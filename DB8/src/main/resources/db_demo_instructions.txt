@@ -1,0 +1,168 @@
+[START SSH TUNNEL]
+
+ssh -fN db8-tunnel
+
+
+[RUN JAR]
+
+cd /Users/minkyoung_lee/Library/Mobile\ Documents/com~apple~CloudDocs/2026/2026-1/데베/TeamProject
+java -jar DB8-1.0-SNAPSHOT.jar
+
+
+[CUSTOMER LOGIN - JAVA INPUT]
+
+1
+linusT@linux.com
+linux4u
+
+
+[VIEW AVAILABLE BOOKS / SEARCH CLEAN CODE - JAVA INPUT]
+
+1
+Clean
+
+
+
+[ADD CLEAN CODE TO BASKET - JAVA INPUT]
+
+2
+101
+1
+
+
+[CHECK BASKET - MYSQL]
+
+SELECT *
+FROM market_basket
+WHERE customer_id = 201;
+
+
+[PURCHASE BOOKS - JAVA INPUT]
+
+4
+y
+
+
+[CHECK SALES / SALES_DETAIL / STOCK - MYSQL]
+
+SELECT *
+FROM sales
+WHERE customer_id = 201
+ORDER BY sales_id DESC
+LIMIT 3;
+
+SELECT *
+FROM sales_detail
+ORDER BY sales_detail_id DESC
+LIMIT 3;
+
+SELECT product_id, product_name, unit_price, stock_quantity
+FROM product
+WHERE product_id = 101;
+
+
+[VIEW PURCHASE HISTORY - JAVA INPUT]
+
+5
+
+
+[VIEW PURCHASES BEFORE/AFTER PROFILE CHANGES - JAVA INPUT]
+
+6
+
+
+[WRITE REVIEW - JAVA INPUT]
+
+10
+101
+5
+Good book for demo
+
+
+[CHECK REVIEW ID - MYSQL]
+
+SELECT *
+FROM book_review
+WHERE customer_id = 201
+ORDER BY review_id DESC
+LIMIT 3;
+
+
+[DELETE REVIEW - JAVA INPUT]
+여기서 LATEST_REVIEW_ID는 위 SQL 결과의 가장 최근 review_id로 바꾸기
+
+11
+854
+
+
+[LOGOUT CUSTOMER + MANAGER LOGIN - JAVA INPUT]
+
+0
+3
+mlee051201@gmail.com
+passwd4mst
+
+
+[UPDATE PRODUCT PRICE - JAVA INPUT]
+
+2
+101
+18000
+
+
+[CHECK PRODUCT PRICE HISTORY - MYSQL]
+
+SELECT product_id, product_name, unit_price
+FROM product
+WHERE product_id = 101;
+
+SELECT price_history_id, product_id, unit_price, start_date, end_date
+FROM product_price_history
+WHERE product_id = 101
+ORDER BY start_date DESC
+LIMIT 5;
+
+
+[ANALYZE SALES BEFORE/AFTER PRICE CHANGE - JAVA INPUT]
+
+3
+101
+
+
+[VIEW INVENTORY STATUS - JAVA INPUT]
+
+6
+
+
+[UPDATE STOCK QUANTITY - JAVA INPUT]
+
+7
+101
+5
+
+
+[MANAGE MANAGER ROLE - JAVA INPUT]
+
+8
+2
+4
+1
+
+
+[CHECK MANAGER ROLE RESULT - MYSQL]
+
+SELECT m.manager_id, m.manager_name, mr.role_name
+FROM manager m
+JOIN manager_role_assignment mra
+    ON m.manager_id = mra.manager_id
+JOIN manager_role mr
+    ON mra.role_id = mr.role_id
+WHERE m.manager_id = 2
+ORDER BY mr.role_id;
+
+
+[EXIT - JAVA INPUT]
+
+0
+0
+
